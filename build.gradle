@@ -5,9 +5,11 @@ plugins {
 group 'me.rexzhang'
 version '1.0-SNAPSHOT'
 
-project.ext.lwjglVersion = "3.2.3"
+project.ext.lwjglVersion = "3.3.0"
 project.ext.jomlVersion = "1.10.3"
-project.ext.lwjglNatives = "natives-windows"
+// uncomment this if on windows
+// project.ext.lwjglNatives = "natives-windows"
+project.ext.lwjglNatives = "natives-macos-arm64"
 
 repositories {
     mavenCentral()

@@ -14,12 +14,20 @@ public class Window {
     private final String title;
     private long glfwWindow;
 
+    private float r, g, b, a;
+    private boolean fadeToBlack;
+
     private static Window instance;
 
     private Window() {
-        this.width = 1920;
-        this.height = 1080;
-        this.title = "Mario";
+        width = 1920;
+        height = 1080;
+        title = "Mario";
+        r = 1;
+        g = 1;
+        b = 1;
+        a = 1;
+        fadeToBlack = false;
     }
 
     public static Window getInstance() {
@@ -33,6 +41,10 @@ public class Window {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
         init();
         loop();
+
+        // terminate GLFW and release the resources
+        GLFW.glfwTerminate();
+        GLFW.glfwSetErrorCallback(null).free();
     }
 
     private void init() {
@@ -56,6 +68,11 @@ public class Window {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
 
+        GLFW.glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
+        GLFW.glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
+        GLFW.glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
+        GLFW.glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+
         // make the OpenGL context current
         GLFW.glfwMakeContextCurrent(glfwWindow);
         // enable v-sync
@@ -77,8 +94,18 @@ public class Window {
             // poll events
             GLFW.glfwPollEvents();
 
-            GL11.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            GL11.glClearColor(r, g, b, a);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+            if (fadeToBlack) {
+                r = Math.max(0, r - 0.01f);
+                g = Math.max(0, g - 0.01f);
+                b = Math.max(0, b - 0.01f);
+            }
+
+            if (KeyListener.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
+                fadeToBlack = true;
+            }
 
             GLFW.glfwSwapBuffers(glfwWindow);
         }
