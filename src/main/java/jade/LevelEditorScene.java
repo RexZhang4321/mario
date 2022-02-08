@@ -1,40 +1,21 @@
 package jade;
 
 
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL41;
+import renderer.Shader;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public class LevelEditorScene extends Scene {
 
-    private String vertexShaderSrc = "#version 410 core\n" +
-            "layout (location=0) in vec3 aPos;\n" +
-            "layout (location=1) in vec4 aColor;\n" +
-            "\n" +
-            "out vec4 fColor;\n" +
-            "\n" +
-            "void main() {\n" +
-            "    fColor = aColor;\n" +
-            "    gl_Position = vec4(aPos, 1.0);\n" +
-            "}";
-    private String fragmentShaderSrc = "#version 410 core\n" +
-            "\n" +
-            "in vec4 fColor;\n" +
-            "\n" +
-            "out vec4 color;\n" +
-            "\n" +
-            "void main() {\n" +
-            "    color = fColor;\n" +
-            "}";
-    private int vertexId, fragmentId, shaderProgram;
-
     private float[] vertexArray = {
-            // position (normalized, x-axle, y-axle, ?) | color (r, g, b, a)
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // 0. bottom right
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // 1. top left
-            0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // 2. top right
+            // position (x-axle, y-axle, ?) | color (r, g, b, a)
+            100.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // 0. bottom right
+            -0.5f, 100.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // 1. top left
+            100.5f, 100.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // 2. top right
             -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f // 3. bottom left
     };
     // IMPORTANT: MUST be in counter-clockwise order
@@ -45,6 +26,8 @@ public class LevelEditorScene extends Scene {
 
     private int vaoId, vboId, eboId;
 
+    private Shader defaultShader;
+
     public LevelEditorScene() {
 
     }
@@ -52,49 +35,9 @@ public class LevelEditorScene extends Scene {
     @Override
     public void init() {
         System.out.println(GL41.glGetString(GL41.GL_VERSION));
-        // compile and link shaders
-        // 1. load and compile the vertex shader
-        vertexId = GL41.glCreateShader(GL41.GL_VERTEX_SHADER);
-        // 2. pass the shader source to the GPU
-        GL41.glShaderSource(vertexId, vertexShaderSrc);
-        GL41.glCompileShader(vertexId);
-        // 3. check for errors in compilation
-        int success = GL41.glGetShaderi(vertexId, GL41.GL_COMPILE_STATUS);
-        if (success == GL41.GL_FALSE) {
-            int len = GL41.glGetShaderi(vertexId, GL41.GL_INFO_LOG_LENGTH);
-            System.out.println("ERROR: 'defaultShader.glsl'\n\t vertex shader compilation failed.");
-            System.out.println(GL41.glGetShaderInfoLog(vertexId, len));
-            assert false : "";
-        }
-
-        // 1. load and compile the fragment shader
-        fragmentId = GL41.glCreateShader(GL41.GL_FRAGMENT_SHADER);
-        // 2. pass the shader source to the GPU
-        GL41.glShaderSource(fragmentId, fragmentShaderSrc);
-        GL41.glCompileShader(fragmentId);
-        // 3. check for errors in compilation
-        success = GL41.glGetShaderi(fragmentId, GL41.GL_COMPILE_STATUS);
-        if (success == GL41.GL_FALSE) {
-            int len = GL41.glGetShaderi(fragmentId, GL41.GL_INFO_LOG_LENGTH);
-            System.out.println("ERROR: 'defaultShader.glsl'\n\t vertex shader compilation failed.");
-            System.out.println(GL41.glGetShaderInfoLog(fragmentId, len));
-            assert false : "";
-        }
-
-        // link shaders and check for errors
-        shaderProgram = GL41.glCreateProgram();
-        GL41.glAttachShader(shaderProgram, vertexId);
-        GL41.glAttachShader(shaderProgram, fragmentId);
-        GL41.glLinkProgram(shaderProgram);
-
-        // check for linking errors
-        success = GL41.glGetProgrami(shaderProgram, GL41.GL_LINK_STATUS);
-        if (success == GL41.GL_FALSE) {
-            int len = GL41.glGetProgrami(shaderProgram, GL41.GL_INFO_LOG_LENGTH);
-            System.out.println("ERROR: 'defaultShader.glsl'\n\t linking of shaders failed.");
-            System.out.println(GL41.glGetProgramInfoLog(fragmentId, len));
-            assert false : "";
-        }
+        camera = new Camera(new Vector2f());
+        defaultShader = new Shader("assets/shaders/default.glsl");
+        defaultShader.compile();
 
         // generate VAO, VBO and EBO buffer objects and send to GPU
         vaoId = GL41.glGenVertexArrays();
@@ -132,8 +75,10 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void update(float dt) {
-        // bind shader program
-        GL41.glUseProgram(shaderProgram);
+        camera.position.x -= dt * 50.0f;
+        defaultShader.use();
+        defaultShader.uploadMat4f("uProjection", camera.getProjectionMatrix());
+        defaultShader.uploadMat4f("uView", camera.getViewMatrix());
 
         // bind the VAO we are using
         GL41.glBindVertexArray(vaoId);
@@ -150,6 +95,6 @@ public class LevelEditorScene extends Scene {
 
         GL41.glBindVertexArray(0);
 
-        GL41.glUseProgram(0);
+        defaultShader.detach();
     }
 }
