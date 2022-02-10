@@ -164,4 +164,10 @@ public class Shader {
         use();
         GL41.glUniform1i(varLocation, val);
     }
+
+    public void uploadTexture(String varName, int slot) {
+        int varLocation = GL41.glGetUniformLocation(shaderProgramId, varName);
+        use();
+        GL41.glUniform1i(varLocation, slot);
+    }
 }

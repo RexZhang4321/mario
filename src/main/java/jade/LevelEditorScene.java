@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL41;
 import renderer.Shader;
+import renderer.Texture;
 import util.Time;
 
 import java.nio.FloatBuffer;
@@ -13,11 +14,11 @@ import java.nio.IntBuffer;
 public class LevelEditorScene extends Scene {
 
     private float[] vertexArray = {
-            // position (x-axle, y-axle, ?) | color (r, g, b, a)
-            100.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // 0. bottom right
-            -0.5f, 100.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // 1. top left
-            100.5f, 100.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // 2. top right
-            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f // 3. bottom left
+            // position (x-axle, y-axle, ?) | color (r, g, b, a) | UV coordinates
+            100.5f, -0.5f,  0.0f,   1.0f, 0.0f, 0.0f, 1.0f,   1, 1, // 0. bottom right
+            -0.5f,  100.5f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,   0, 0, // 1. top left
+            100.5f, 100.5f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,   1, 0, // 2. top right
+            -0.5f,  -0.5f,  0.0f,   1.0f, 1.0f, 0.0f, 1.0f,   0, 1  // 3. bottom left
     };
     // IMPORTANT: MUST be in counter-clockwise order
     private int[] elementArray = {
@@ -28,6 +29,7 @@ public class LevelEditorScene extends Scene {
     private int vaoId, vboId, eboId;
 
     private Shader defaultShader;
+    private Texture testTexture = new Texture("assets/images/logo.jpg");
 
     public LevelEditorScene() {
 
@@ -64,21 +66,29 @@ public class LevelEditorScene extends Scene {
         // add the vertex attribute buffers
         int positionsSize = 3;
         int colorSize = 4;
-        int floatSizeBytes = 4;
-        int positionSizeBytes = positionsSize * floatSizeBytes;
-        int vertexSizeBytes = (positionsSize + colorSize) * floatSizeBytes;
+        int uvSize = 2;
+        int vertexSizeBytes = (positionsSize + colorSize + uvSize) * Float.BYTES;
         GL41.glVertexAttribPointer(0, positionsSize, GL41.GL_FLOAT, false, vertexSizeBytes, 0);
         GL41.glEnableVertexAttribArray(0);
 
-        GL41.glVertexAttribPointer(1, colorSize, GL41.GL_FLOAT, false, vertexSizeBytes, positionSizeBytes);
+        GL41.glVertexAttribPointer(1, colorSize, GL41.GL_FLOAT, false, vertexSizeBytes, positionsSize * Float.BYTES);
         GL41.glEnableVertexAttribArray(1);
+
+        GL41.glVertexAttribPointer(2, uvSize, GL41.GL_FLOAT, false, vertexSizeBytes, (positionsSize + colorSize) * Float.BYTES);
+        GL41.glEnableVertexAttribArray(2);
     }
 
     @Override
     public void update(float dt) {
-        camera.position.x -= dt * 50.0f;
-        camera.position.y -= dt * 50.0f;
+        // camera.position.x -= dt * 50.0f;
+        // camera.position.y -= dt * 50.0f;
+
         defaultShader.use();
+
+        defaultShader.uploadTexture("TEX_SAMPLER", 0);
+        GL41.glActiveTexture(GL41.GL_TEXTURE0);
+        testTexture.bind();
+
         defaultShader.uploadMat4f("uProjection", camera.getProjectionMatrix());
         defaultShader.uploadMat4f("uView", camera.getViewMatrix());
         defaultShader.uploadFloat("uTime", Time.getTime());
