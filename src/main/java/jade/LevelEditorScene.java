@@ -1,6 +1,8 @@
 package jade;
 
 
+import components.FontRenderer;
+import components.SpriteRenderer;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL41;
@@ -30,6 +32,8 @@ public class LevelEditorScene extends Scene {
 
     private Shader defaultShader;
     private Texture testTexture = new Texture("assets/images/logo.jpg");
+    private GameObject testObject;
+    private boolean firstTime = false;
 
     public LevelEditorScene() {
 
@@ -38,6 +42,12 @@ public class LevelEditorScene extends Scene {
     @Override
     public void init() {
         System.out.println(GL41.glGetString(GL41.GL_VERSION));
+        System.out.println("Creating testObject");
+        testObject = new GameObject("testObject");
+        testObject.addComponent(new SpriteRenderer());
+        testObject.addComponent(new FontRenderer());
+        addGameObjectToScene(testObject);
+
         camera = new Camera(new Vector2f());
         defaultShader = new Shader("assets/shaders/default.glsl");
         defaultShader.compile();
@@ -109,5 +119,17 @@ public class LevelEditorScene extends Scene {
         GL41.glBindVertexArray(0);
 
         defaultShader.detach();
+
+        if (!firstTime) {
+            System.out.println("Creating game object2");
+            GameObject go = new GameObject("testObject2");
+            go.addComponent(new SpriteRenderer());
+            addGameObjectToScene(go);
+            firstTime = true;
+        }
+
+        for (GameObject gameObject : gameObjects) {
+            gameObject.update(dt);
+        }
     }
 }
