@@ -4,6 +4,7 @@ import components.SpriteRenderer;
 import jade.Window;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL41;
+import util.AssetPool;
 
 public class RenderBatch {
 
@@ -32,8 +33,7 @@ public class RenderBatch {
 
     public RenderBatch(int maxBatchSize) {
         this.maxBatchSize = maxBatchSize;
-        shader = new Shader("assets/shaders/default.glsl");
-        shader.compile();
+        shader = AssetPool.getShader("assets/shaders/default.glsl");
         sprites = new SpriteRenderer[maxBatchSize];
 
         // 4 vertices quads
@@ -143,7 +143,7 @@ public class RenderBatch {
     }
 
     private int[] generateIndices() {
-        // 6 indices per quad (3 per triangle
+        // 6 indices per quad (3 per triangle * 2)
         int[] elements = new int[6 * maxBatchSize];
         for (int i = 0; i < maxBatchSize; i++) {
             loadElementIndices(elements, i);
