@@ -4,9 +4,8 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
-import util.Time;
 
 
 public class Window {
@@ -115,14 +114,14 @@ public class Window {
     }
 
     private void loop() {
-        float beginTime = Time.getTime();
+        float beginTime = (float) GLFW.glfwGetTime();
         float dt = -1.0f;
         while (!GLFW.glfwWindowShouldClose(glfwWindow)) {
             // poll events
             GLFW.glfwPollEvents();
 
-            GL11.glClearColor(r, g, b, a);
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+            GL41.glClearColor(r, g, b, a);
+            GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
                 currentScene.update(dt);
@@ -130,7 +129,7 @@ public class Window {
 
             GLFW.glfwSwapBuffers(glfwWindow);
 
-            float endTime = Time.getTime();
+            float endTime = (float) GLFW.glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
