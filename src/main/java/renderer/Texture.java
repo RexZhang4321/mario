@@ -11,6 +11,7 @@ public class Texture {
 
     private String filePath;
     private int texId;
+    private int width, height;
 
     public Texture(String filePath) {
         this.filePath = filePath;
@@ -37,6 +38,8 @@ public class Texture {
         ByteBuffer image = STBImage.stbi_load(filePath, width, height, channels, 0);
 
         if (image != null) {
+            this.width = width.get(0);
+            this.height = height.get(0);
             int nChannels = GL41.GL_RGB;
             if (channels.get(0) == 3) {
                 nChannels = GL41.GL_RGB;
@@ -62,4 +65,11 @@ public class Texture {
         GL41.glBindTexture(GL41.GL_TEXTURE_2D, 0);
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

@@ -30,6 +30,8 @@ public class RenderBatch {
     private final int VERTEX_SIZE = 9;
     private final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
 
+    private final int MAX_N_TEXTURE_SLOT = 8;
+
     private SpriteRenderer[] sprites;
     private int numSprites;
     private boolean hasRoom;
@@ -198,6 +200,14 @@ public class RenderBatch {
 
     public boolean hasRoom() {
         return hasRoom;
+    }
+
+    public boolean hasTextureRoom() {
+        return this.textures.size() < MAX_N_TEXTURE_SLOT;
+    }
+
+    public boolean hasTexture(Texture texture) {
+        return this.textures.contains(texture);
     }
 
     private int[] generateIndices() {
