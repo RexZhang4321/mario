@@ -10,7 +10,7 @@ import util.AssetPool;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RenderBatch {
+public class RenderBatch implements Comparable<RenderBatch> {
 
     /*
      * Vertex
@@ -43,7 +43,10 @@ public class RenderBatch {
     private int maxBatchSize;
     private Shader shader;
 
-    public RenderBatch(int maxBatchSize) {
+    private int zIndex;
+
+    public RenderBatch(int maxBatchSize, int zIndex) {
+        this.zIndex = zIndex;
         this.maxBatchSize = maxBatchSize;
         shader = AssetPool.getShader("assets/shaders/default.glsl");
         sprites = new SpriteRenderer[maxBatchSize];
@@ -56,6 +59,11 @@ public class RenderBatch {
 
         numSprites = 0;
         hasRoom = true;
+    }
+
+    @Override
+    public int compareTo(RenderBatch o) {
+        return Integer.compare(this.zIndex, o.zIndex());
     }
 
     public void start() {
@@ -219,6 +227,10 @@ public class RenderBatch {
 
     public boolean hasTexture(Texture texture) {
         return this.textures.contains(texture);
+    }
+
+    public int zIndex() {
+        return zIndex;
     }
 
     private int[] generateIndices() {

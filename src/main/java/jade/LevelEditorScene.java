@@ -1,6 +1,7 @@
 package jade;
 
 
+import components.Sprite;
 import components.SpriteRenderer;
 import components.SpriteSheet;
 import org.joml.Vector2f;
@@ -25,34 +26,25 @@ public class LevelEditorScene extends Scene {
 
         spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
 
-        gameObject1 = new GameObject("Object 1", new Transform(new Vector2f(100, 100), new Vector2f(256, 256)));
-        gameObject1.addComponent(new SpriteRenderer(spriteSheet.getSprite(0)));
-        this.addGameObjectToScene(gameObject1);
+        // red
+        gameObject1 = new GameObject(
+                "Object 1", new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 2);
+        gameObject1.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("assets/images/blendImage1.png"))));
 
-        GameObject gameObject2 = new GameObject("Object 2", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)));
-        gameObject2.addComponent(new SpriteRenderer(spriteSheet.getSprite(15)));
+        // green
+        GameObject gameObject2 = new GameObject("Object 2",
+                new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 1);
+        gameObject2.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("assets/images/blendImage2.png"))));
+
+        this.addGameObjectToScene(gameObject1);
         this.addGameObjectToScene(gameObject2);
     }
-
-    private int spriteIndex = 0;
-    private float spriteFlipTime = 0.2f;
-    private float spriteFlipTimeLeft = 0.0f;
 
     @Override
     public void update(float dt) {
         System.out.println("FPS: " + 1.0f / dt);
 
         gameObject1.transform.position.x += 10 * dt;
-
-        spriteFlipTimeLeft -= dt;
-        if (spriteFlipTimeLeft <= 0) {
-            spriteFlipTimeLeft = spriteFlipTime;
-            spriteIndex++;
-            if (spriteIndex > 3) {
-                spriteIndex = 0;
-            }
-            gameObject1.getComponent(SpriteRenderer.class).setSprite(spriteSheet.getSprite(spriteIndex));
-        }
 
         for (GameObject gameObject : gameObjects) {
             gameObject.update(dt);
