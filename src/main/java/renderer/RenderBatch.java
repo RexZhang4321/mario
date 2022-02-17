@@ -109,9 +109,20 @@ public class RenderBatch {
     }
 
     public void render() {
-        // for now, we will re-buffer all data every frame
-        GL41.glBindBuffer(GL41.GL_ARRAY_BUFFER, vboId);
-        GL41.glBufferSubData(GL41.GL_ARRAY_BUFFER, 0, vertices);
+        boolean reBufferData = false;
+        for (int i = 0; i < numSprites; i++) {
+            SpriteRenderer spriteRenderer = sprites[i];
+            if (spriteRenderer.isDirty()) {
+                loadVertexProperties(i);
+                spriteRenderer.setClean();
+                reBufferData = true;
+            }
+        }
+
+        if (reBufferData) {
+            GL41.glBindBuffer(GL41.GL_ARRAY_BUFFER, vboId);
+            GL41.glBufferSubData(GL41.GL_ARRAY_BUFFER, 0, vertices);
+        }
 
         // use shader
         shader.use();
@@ -139,8 +150,8 @@ public class RenderBatch {
         GL41.glDisableVertexAttribArray(3);
         GL41.glBindVertexArray(0);
 
-        for (int i = 0; i < textures.size(); i++) {
-            textures.get(i).unbind();
+        for (Texture texture : textures) {
+            texture.unbind();
         }
 
         shader.detach();
