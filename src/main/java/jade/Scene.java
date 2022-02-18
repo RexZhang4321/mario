@@ -1,5 +1,6 @@
 package jade;
 
+import imgui.ImGui;
 import renderer.Renderer;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public abstract class Scene {
     protected Renderer renderer = new Renderer();
     protected Camera camera;
     protected List<GameObject> gameObjects = new ArrayList<>();
+    protected GameObject activeGameObject = null;
     private boolean isRunning = false;
 
     public Scene() {
@@ -42,4 +44,17 @@ public abstract class Scene {
         return camera;
     }
 
+    public void sceneImGui() {
+        if (activeGameObject != null) {
+            ImGui.begin("Inspector");
+            activeGameObject.imGui();
+            ImGui.end();
+        }
+
+        imGui();
+    }
+
+    public void imGui() {
+
+    }
 }

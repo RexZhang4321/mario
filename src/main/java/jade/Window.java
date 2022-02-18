@@ -1,5 +1,7 @@
 package jade;
 
+import imgui.ImFontAtlas;
+import imgui.ImFontConfig;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.flag.ImGuiConfigFlags;
@@ -19,8 +21,6 @@ public class Window {
     private final String title;
 
     private long glfwWindow;
-    private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
-    private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
     private final String glslVersion = "#version 410";
 
@@ -40,7 +40,6 @@ public class Window {
         g = 1;
         b = 1;
         a = 1;
-        imGuiLayer = new ImGuiLayer();
     }
 
     public static void changeScene(int newScene) {
@@ -74,8 +73,7 @@ public class Window {
 
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
-        initWindow();
-        initImGui();
+        init();
         loop();
 
         // terminate GLFW and release the resources
@@ -83,7 +81,7 @@ public class Window {
         GLFW.glfwSetErrorCallback(null).free();
     }
 
-    private void initWindow() {
+    private void init() {
         // setup an error callback
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -128,15 +126,10 @@ public class Window {
         GL41.glEnable(GL41.GL_BLEND);
         GL41.glBlendFunc(GL41.GL_ONE, GL41.GL_ONE_MINUS_SRC_ALPHA);
 
-        Window.changeScene(0);
-    }
+        imGuiLayer = new ImGuiLayer(glfwWindow, glslVersion);
+        imGuiLayer.init();
 
-    private void initImGui() {
-        ImGui.createContext();
-        ImGuiIO io = ImGui.getIO();
-        io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
-        imGuiGlfw.init(glfwWindow, true);
-        imGuiGl3.init(glslVersion);
+        Window.changeScene(0);
     }
 
     private void loop() {
@@ -144,32 +137,18 @@ public class Window {
         float dt = -1.0f;
         while (!GLFW.glfwWindowShouldClose(glfwWindow)) {
             // poll events
-            // GLFW.glfwPollEvents();
+            GLFW.glfwPollEvents();
 
             GL41.glClearColor(r, g, b, a);
             GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
-
-            imGuiGlfw.newFrame();
-            ImGui.newFrame();
-
-            imGuiLayer.imGui();
-
-            ImGui.render();
-            imGuiGl3.renderDrawData(ImGui.getDrawData());
-
-            if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
-                final long backupWindowPtr = GLFW.glfwGetCurrentContext();
-                ImGui.updatePlatformWindows();
-                ImGui.renderPlatformWindowsDefault();
-                GLFW.glfwMakeContextCurrent(backupWindowPtr);
-            }
 
             if (dt >= 0) {
                 currentScene.update(dt);
             }
 
+            imGuiLayer.update(currentScene);
+
             GLFW.glfwSwapBuffers(glfwWindow);
-            GLFW.glfwPollEvents();
 
             float endTime = (float) GLFW.glfwGetTime();
             dt = endTime - beginTime;
