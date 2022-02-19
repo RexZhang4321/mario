@@ -81,13 +81,12 @@ public abstract class Scene {
         }
     }
 
-    public boolean load() {
+    public void load() {
         String inFile = "";
         try {
             inFile = new String(Files.readAllBytes(Paths.get("level.txt")));
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
 
         if (!"".equals(inFile)) {
@@ -96,8 +95,6 @@ public abstract class Scene {
                 addGameObjectToScene(gameObject);
             }
             this.levelLoaded = true;
-            return true;
         }
-        return false;
     }
 }

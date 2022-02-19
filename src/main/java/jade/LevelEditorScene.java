@@ -1,6 +1,7 @@
 package jade;
 
 
+import components.RigidBody;
 import components.Sprite;
 import components.SpriteRenderer;
 import components.SpriteSheet;
@@ -13,7 +14,6 @@ public class LevelEditorScene extends Scene {
 
     private final String spriteSheetPath = "assets/images/spritesheet.png";
 
-    private GameObject gameObject1;
     private SpriteSheet spriteSheet;
 
     public LevelEditorScene() {
@@ -26,12 +26,18 @@ public class LevelEditorScene extends Scene {
 
         camera = new Camera(new Vector2f());
 
+        if (levelLoaded) {
+            this.activeGameObject = gameObjects.get(0);
+            return;
+        }
+
         // red
-        gameObject1 = new GameObject(
+        GameObject gameObject1 = new GameObject(
                 "Object 1", new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 1);
         SpriteRenderer spriteRenderer1 = new SpriteRenderer();
         spriteRenderer1.setColor(new Vector4f(1, 0, 0, 1));
         gameObject1.addComponent(spriteRenderer1);
+        gameObject1.addComponent(new RigidBody());
 
         // green
         GameObject gameObject2 = new GameObject("Object 2",
@@ -52,7 +58,7 @@ public class LevelEditorScene extends Scene {
     public void update(float dt) {
         System.out.println("FPS: " + 1.0f / dt);
 
-        gameObject1.transform.position.x += 10 * dt;
+        this.gameObjects.get(0).transform.position.x += 10 * dt;
 
         for (GameObject gameObject : gameObjects) {
             gameObject.update(dt);
@@ -72,6 +78,7 @@ public class LevelEditorScene extends Scene {
         AssetPool.getShader("assets/shaders/default.glsl");
 
         AssetPool.addSpriteSheet(spriteSheetPath, new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 26, 0));
+        AssetPool.getTexture("assets/images/blendImage2.png");
 
         spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
     }
