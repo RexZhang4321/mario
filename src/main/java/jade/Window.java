@@ -1,12 +1,5 @@
 package jade;
 
-import imgui.ImFontAtlas;
-import imgui.ImFontConfig;
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiConfigFlags;
-import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -135,6 +128,7 @@ public class Window {
     private void loop() {
         float beginTime = (float) GLFW.glfwGetTime();
         float dt = -1.0f;
+
         while (!GLFW.glfwWindowShouldClose(glfwWindow)) {
             // poll events
             GLFW.glfwPollEvents();
@@ -154,6 +148,8 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+
+        currentScene.saveExit();
     }
 
 }
