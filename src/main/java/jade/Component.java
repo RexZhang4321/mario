@@ -3,7 +3,7 @@ package jade;
 public abstract class Component {
 
     // pointer to its parent
-    public GameObject gameObject;
+    public transient GameObject gameObject;
 
     public void start() {
 

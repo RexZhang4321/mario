@@ -33,7 +33,8 @@ public class AssetPool {
         if (textures.containsKey(path)) {
             return textures.get(path);
         } else {
-            Texture texture = new Texture(path);
+            Texture texture = new Texture();
+            texture.init(path);
             textures.put(path, texture);
             return texture;
         }

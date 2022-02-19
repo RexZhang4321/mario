@@ -1,6 +1,8 @@
 package jade;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import components.Sprite;
 import components.SpriteRenderer;
 import components.SpriteSheet;
@@ -31,17 +33,27 @@ public class LevelEditorScene extends Scene {
         // red
         gameObject1 = new GameObject(
                 "Object 1", new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 1);
-        gameObject1.addComponent(new SpriteRenderer(new Vector4f(1, 0, 0, 1)));
+        SpriteRenderer spriteRenderer1 = new SpriteRenderer();
+        spriteRenderer1.setColor(new Vector4f(1, 0, 0, 1));
+        gameObject1.addComponent(spriteRenderer1);
 
         // green
         GameObject gameObject2 = new GameObject("Object 2",
                 new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 2);
-        gameObject2.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("assets/images/blendImage2.png"))));
+        SpriteRenderer spriteRenderer2 = new SpriteRenderer();
+        Sprite sprite = new Sprite();
+        sprite.setTexture(AssetPool.getTexture("assets/images/blendImage2.png"));
+        spriteRenderer2.setSprite(sprite);
+        gameObject2.addComponent(spriteRenderer2);
 
         this.addGameObjectToScene(gameObject1);
         this.addGameObjectToScene(gameObject2);
 
         this.activeGameObject = gameObject1;
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        System.out.println(gson.toJson(gameObject1));
     }
 
     @Override
