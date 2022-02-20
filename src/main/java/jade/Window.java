@@ -63,6 +63,14 @@ public class Window {
         return currentScene;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
         init();

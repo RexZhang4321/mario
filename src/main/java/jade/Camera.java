@@ -8,7 +8,7 @@ public class Camera {
 
     // maps the real world coordinates to normalized device coordinates
     // and what type of the projection it is (perspective projection OR orthographic projection)
-    private Matrix4f projectionMatrix;
+    private Matrix4f projectionMatrix, inverseProjection;
 
     // lookAt matrix -- where the camera is looking from in the world
     // Right_x R_y R_z 0
@@ -20,7 +20,7 @@ public class Camera {
     // 0 1 1 -P_y
     // 0 0 1 -P_z
     // 0 0 0 1
-    private Matrix4f viewMatrix;
+    private Matrix4f viewMatrix, inverseView;
 
     public Vector2f position;
 
@@ -28,12 +28,15 @@ public class Camera {
         this.position = position;
         this.projectionMatrix = new Matrix4f();
         this.viewMatrix = new Matrix4f();
+        this.inverseProjection = new Matrix4f();
+        this.inverseView = new Matrix4f();
         adjustProjection();
     }
 
     public void adjustProjection() {
         projectionMatrix.identity();
         projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
+        projectionMatrix.invert(inverseProjection);
     }
 
     public Matrix4f getViewMatrix() {
@@ -48,10 +51,19 @@ public class Camera {
                 // which direction is up
                 cameraUp
         );
+        viewMatrix.invert(inverseView);
         return viewMatrix;
     }
 
     public Matrix4f getProjectionMatrix() {
         return projectionMatrix;
+    }
+
+    public Matrix4f getInverseProjection() {
+        return inverseProjection;
+    }
+
+    public Matrix4f getInverseView() {
+        return inverseView;
     }
 }
