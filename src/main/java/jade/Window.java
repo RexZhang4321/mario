@@ -6,6 +6,9 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
+import scenes.LevelEditorScene;
+import scenes.LevelScene;
+import scenes.Scene;
 
 
 public class Window {
@@ -64,11 +67,11 @@ public class Window {
     }
 
     public int getWidth() {
-        return width;
+        return getInstance().width;
     }
 
     public int getHeight() {
-        return height;
+        return getInstance().height;
     }
 
     public void run() {
@@ -94,8 +97,8 @@ public class Window {
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 1);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
-        GLFW.glfwWindowHint(GLFW.GLFW_MAXIMIZED, GLFW.GLFW_TRUE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
 
         // create the window
         glfwWindow = GLFW.glfwCreateWindow(this.width, this.height, this.title, MemoryUtil.NULL, MemoryUtil.NULL);
@@ -158,5 +161,4 @@ public class Window {
 
         currentScene.saveExit();
     }
-
 }

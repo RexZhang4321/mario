@@ -8,7 +8,7 @@ public class MouseListener {
     private static MouseListener instance;
     private double scrollX, scrollY;
     private double xPos, yPos, lastX, lastY;
-    private boolean[] mouseButtonPressed = new boolean[3];
+    private boolean[] mouseButtonPressed = new boolean[9];
     private boolean isDragging;
 
     private MouseListener() {
@@ -78,7 +78,7 @@ public class MouseListener {
     }
 
     public static float getOrthoY() {
-        float currentY = getY();
+        float currentY = Window.getInstance().getHeight() - getY();
         currentY = (currentY / (float) Window.getInstance().getHeight()) * 2.0f - 1.0f;
         Vector4f tmp = new Vector4f(0, currentY, 0, 1);
         tmp.mul(Window.getScene().camera().getInverseProjection()).mul(Window.getScene().camera().getInverseView());

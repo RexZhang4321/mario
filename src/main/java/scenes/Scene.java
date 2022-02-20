@@ -1,8 +1,13 @@
-package jade;
+package scenes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import components.Component;
+import components.ComponentSerDeser;
 import imgui.ImGui;
+import jade.Camera;
+import jade.GameObject;
+import jade.GameObjectDeserializer;
 import renderer.Renderer;
 
 import java.io.FileWriter;
@@ -82,6 +87,9 @@ public abstract class Scene {
     }
 
     public void load() {
+        if (Files.notExists(Paths.get("level.txt"))) {
+            return;
+        }
         String inFile = "";
         try {
             inFile = new String(Files.readAllBytes(Paths.get("level.txt")));
@@ -90,10 +98,22 @@ public abstract class Scene {
         }
 
         if (!"".equals(inFile)) {
+            int maxGameObjectId = -1;
+            int maxComponentId = -1;
             GameObject[] gameObjects = gson.fromJson(inFile, GameObject[].class);
             for (GameObject gameObject : gameObjects) {
                 addGameObjectToScene(gameObject);
+
+                for (Component component : gameObject.getComponents()) {
+                    maxComponentId = Math.max(maxComponentId, component.getUid());
+                }
+                maxGameObjectId = Math.max(maxGameObjectId, gameObject.getUid());
             }
+
+            maxGameObjectId++;
+            maxComponentId++;
+            GameObject.init(maxGameObjectId);
+            Component.init(maxComponentId);
             this.levelLoaded = true;
         }
     }

@@ -1,12 +1,13 @@
-package jade;
+package scenes;
 
 
-import components.RigidBody;
-import components.Sprite;
-import components.SpriteRenderer;
-import components.SpriteSheet;
+import components.*;
 import imgui.ImGui;
 import imgui.ImVec2;
+import jade.Camera;
+import jade.GameObject;
+import jade.Prefabs;
+import jade.Transform;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import util.AssetPool;
@@ -17,6 +18,8 @@ public class LevelEditorScene extends Scene {
 
     private SpriteSheet spriteSheet;
 
+    MouseControls mouseControls = new MouseControls();
+
     public LevelEditorScene() {
 
     }
@@ -25,7 +28,7 @@ public class LevelEditorScene extends Scene {
     public void init() {
         loadResources();
 
-        camera = new Camera(new Vector2f());
+        camera = new Camera(new Vector2f(-250, 0));
 
         if (levelLoaded) {
             this.activeGameObject = gameObjects.get(0);
@@ -58,8 +61,9 @@ public class LevelEditorScene extends Scene {
     @Override
     public void update(float dt) {
         // System.out.println("FPS: " + 1.0f / dt);
+        mouseControls.update(dt);
 
-        this.gameObjects.get(0).transform.position.x += 10 * dt;
+        // this.gameObjects.get(0).transform.position.x += 10 * dt;
 
         for (GameObject gameObject : gameObjects) {
             gameObject.update(dt);
@@ -82,14 +86,16 @@ public class LevelEditorScene extends Scene {
         float windowX2 = windowPost.x + windowSize.x;
         for (int i = 0; i < spriteSheet.getSize(); i++) {
             Sprite sprite = spriteSheet.getSprite(i);
-            float spriteWidth = sprite.getWidth();
-            float spriteHeight = sprite.getHeight();
+            float spriteWidth = sprite.getWidth() * 2;
+            float spriteHeight = sprite.getHeight() * 2;
             int texId = sprite.getTexId();
             Vector2f[] texCoords = sprite.getTexCoords();
 
             ImGui.pushID(i);
             if (ImGui.imageButton(texId, spriteWidth, spriteHeight, texCoords[0].x, texCoords[0].y, texCoords[2].x, texCoords[2].y)) {
-                System.out.println("Button " + i + " clicked!");
+                GameObject gameObject = Prefabs.generateSpriteObject(sprite, spriteWidth, spriteHeight);
+                // attach this to the mouse cursor
+                mouseControls.pickUpObject(gameObject);
             }
             ImGui.popID();
 
