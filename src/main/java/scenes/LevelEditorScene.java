@@ -9,7 +9,9 @@ import jade.GameObject;
 import jade.Prefabs;
 import jade.Transform;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
+import renderer.DebugDraw;
 import util.AssetPool;
 
 public class LevelEditorScene extends Scene {
@@ -58,11 +60,16 @@ public class LevelEditorScene extends Scene {
         this.activeGameObject = gameObject1;
     }
 
+    float t = 0.0f;
     @Override
     public void update(float dt) {
         // System.out.println("FPS: " + 1.0f / dt);
         mouseControls.update(dt);
 
+        float x = (float) Math.sin(t) * 200.0f + 600;
+        float y = (float) Math.cos(t) * 200.0f + 400;
+        t += 0.05f;
+        DebugDraw.addLine2D(new Vector2f(600, 400), new Vector2f(x, y), new Vector3f(1, 0, 0), 5);
         // this.gameObjects.get(0).transform.position.x += 10 * dt;
 
         for (GameObject gameObject : gameObjects) {
