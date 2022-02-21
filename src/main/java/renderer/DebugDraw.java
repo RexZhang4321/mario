@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL41;
 import util.AssetPool;
+import util.JMath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,5 +126,65 @@ public class DebugDraw {
             return;
         }
         lines.add(new Line2D(from, to, color, lifeTime));
+    }
+
+    // add box2D methods
+    public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation) {
+        addBox2D(center, dimensions, rotation, new Vector3f(0, 1, 0), 1);
+    }
+
+    public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation, Vector3f color) {
+        addBox2D(center, dimensions, rotation, color, 1);
+    }
+
+    public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation, Vector3f color, int lifeTime) {
+        Vector2f min = new Vector2f(center).sub(new Vector2f(dimensions).div(2));
+        Vector2f max = new Vector2f(center).add(new Vector2f(dimensions).div(2));
+
+        Vector2f[] vertices = {
+                new Vector2f(min.x, min.y),
+                new Vector2f(min.x, max.y),
+                new Vector2f(max.x, max.y),
+                new Vector2f(max.x, min.y)
+        };
+
+        if (rotation != 0.0f) {
+            for (Vector2f vec : vertices) {
+                JMath.rotate(vec, rotation, center);
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            addLine2D(vertices[i], vertices[(i + 1) % 4], color, lifeTime);
+        }
+    }
+
+    // add circle methods
+    public static void addCircle(Vector2f center, float radius) {
+        addCircle(center, radius, new Vector3f(0, 1, 0), 1);
+    }
+
+    public static void addCircle(Vector2f center, float radius, Vector3f color) {
+        addCircle(center, radius, color, 1);
+    }
+
+    public static void addCircle(Vector2f center, float radius, Vector3f color, int lifeTime) {
+        Vector2f[] points = new Vector2f[20];
+        float increment = 360.0f / points.length;
+        float currentAngle = 0;
+
+        for (int i = 0; i < points.length; i++) {
+            Vector2f tmp = new Vector2f(radius, 0);
+            JMath.rotate(tmp, currentAngle, new Vector2f());
+            points[i] = new Vector2f(tmp).add(center);
+
+            if (i > 0) {
+                addLine2D(points[i - 1], points[i], color, lifeTime);
+            }
+
+            currentAngle += increment;
+        }
+
+        addLine2D(points[points.length - 1], points[0], color, lifeTime);
     }
 }

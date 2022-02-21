@@ -37,7 +37,7 @@ public class LevelEditorScene extends Scene {
         camera = new Camera(new Vector2f(-250, 0));
 
         if (levelLoaded) {
-            this.activeGameObject = gameObjects.get(0);
+            // this.activeGameObject = gameObjects.get(0);
             return;
         }
 
@@ -66,11 +66,15 @@ public class LevelEditorScene extends Scene {
          */
     }
 
+    float angle = 0.0f;
     @Override
     public void update(float dt) {
         // System.out.println("FPS: " + 1.0f / dt);
         levelEditorComponents.update(dt);
 
+        angle += 1.0f;
+        DebugDraw.addBox2D(new Vector2f(400, 200), new Vector2f(64, 32), angle, new Vector3f(0, 1, 0), 1);
+        DebugDraw.addCircle(new Vector2f(600, 400), 64, new Vector3f(0, 1, 0), 1);
         // this.gameObjects.get(0).transform.position.x += 10 * dt;
 
         for (GameObject gameObject : gameObjects) {
