@@ -43,7 +43,7 @@ public class DebugDraw {
         GL41.glEnableVertexAttribArray(1);
 
         // set line width
-        GL41.glLineWidth(2.0f);
+        GL41.glLineWidth(1.0f);
     }
 
     public static void beginFrame() {
