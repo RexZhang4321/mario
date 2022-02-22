@@ -5,9 +5,13 @@ import imgui.ImFontAtlas;
 import imgui.ImFontConfig;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiConfigFlags;
+import imgui.flag.ImGuiStyleVar;
+import imgui.flag.ImGuiWindowFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import imgui.type.ImBoolean;
 import org.lwjgl.glfw.GLFW;
 import scenes.Scene;
 
@@ -30,7 +34,11 @@ public class ImGuiLayer {
         ImGuiIO io = ImGui.getIO();
 
         // enable viewport
-        io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
+        // io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
+
+        // enable docking
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
+
 
         // adjust fonts
         ImFontAtlas fontAtlas = io.getFonts();
@@ -48,18 +56,20 @@ public class ImGuiLayer {
         imGuiGlfw.newFrame();
         ImGui.newFrame();
 
+        setupDockSpace();
         currentScene.sceneImGui();
         imGui();
+        tearDownDockSpace();
 
         ImGui.render();
         imGuiGl3.renderDrawData(ImGui.getDrawData());
 
-        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
-            final long backupWindowPtr = GLFW.glfwGetCurrentContext();
-            ImGui.updatePlatformWindows();
-            ImGui.renderPlatformWindowsDefault();
-            GLFW.glfwMakeContextCurrent(backupWindowPtr);
-        }
+//        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
+//            final long backupWindowPtr = GLFW.glfwGetCurrentContext();
+//            ImGui.updatePlatformWindows();
+//            ImGui.renderPlatformWindowsDefault();
+//            GLFW.glfwMakeContextCurrent(backupWindowPtr);
+//        }
     }
 
     private void imGui() {
@@ -76,6 +86,26 @@ public class ImGuiLayer {
             }
         }
 
+        ImGui.end();
+    }
+
+    private void setupDockSpace() {
+        int windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+        ImGui.setNextWindowPos(0.0f, 0.0f, ImGuiCond.Always);
+        ImGui.setNextWindowSize(Window.getInstance().getWidth(), Window.getInstance().getHeight());
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+        windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
+                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+        ImGui.begin("Dock Space Demo", new ImBoolean(true), windowFlags);
+        ImGui.popStyleVar(2);
+
+        // dock space
+        ImGui.dockSpace(ImGui.getID("Dock Space"));
+    }
+
+    private void tearDownDockSpace() {
         ImGui.end();
     }
 
