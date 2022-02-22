@@ -37,7 +37,9 @@ public class LevelEditorScene extends Scene {
         camera = new Camera(new Vector2f(-250, 0));
 
         if (levelLoaded) {
-            // this.activeGameObject = gameObjects.get(0);
+            if (gameObjects.size() > 0) {
+                this.activeGameObject = gameObjects.get(0);
+            }
             return;
         }
 
@@ -130,5 +132,14 @@ public class LevelEditorScene extends Scene {
         AssetPool.getTexture("assets/images/blendImage2.png");
 
         spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
+
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.getComponent(SpriteRenderer.class) != null) {
+                SpriteRenderer spriteRenderer = gameObject.getComponent(SpriteRenderer.class);
+                if (spriteRenderer.getTexture() != null) {
+                    spriteRenderer.setTexture(AssetPool.getTexture(spriteRenderer.getTexture().getFilePath()));
+                }
+            }
+        }
     }
 }

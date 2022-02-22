@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
 import renderer.DebugDraw;
+import renderer.Framebuffer;
 import scenes.LevelEditorScene;
 import scenes.LevelScene;
 import scenes.Scene;
@@ -28,6 +29,8 @@ public class Window {
     private static Scene currentScene;
 
     private static ImGuiLayer imGuiLayer;
+
+    private static Framebuffer framebuffer;
 
     private Window() {
         width = 1920;
@@ -133,6 +136,8 @@ public class Window {
         imGuiLayer = new ImGuiLayer(glfwWindow, glslVersion);
         imGuiLayer.init();
 
+        framebuffer = new Framebuffer(1920, 1080);
+
         Window.changeScene(0);
     }
 
@@ -153,6 +158,7 @@ public class Window {
                 DebugDraw.draw();
                 currentScene.update(dt);
             }
+            framebuffer.unbind();
 
             imGuiLayer.update(currentScene);
 
