@@ -30,7 +30,7 @@ public class Window {
 
     private static ImGuiLayer imGuiLayer;
 
-    private static Framebuffer framebuffer;
+    private Framebuffer framebuffer;
 
     private Window() {
         width = 1920;
@@ -76,6 +76,14 @@ public class Window {
 
     public int getHeight() {
         return getInstance().height;
+    }
+
+    public Framebuffer getFramebuffer() {
+        return getInstance().framebuffer;
+    }
+
+    public static float getTargetAspectRatio() {
+        return 16.0f / 9.0f;
     }
 
     public void run() {
@@ -137,6 +145,7 @@ public class Window {
         imGuiLayer.init();
 
         framebuffer = new Framebuffer(1920, 1080);
+        GL41.glViewport(0, 0, 1920, 1080);
 
         Window.changeScene(0);
     }
@@ -151,6 +160,7 @@ public class Window {
 
             DebugDraw.beginFrame();
 
+            framebuffer.bind();
             GL41.glClearColor(r, g, b, a);
             GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
 

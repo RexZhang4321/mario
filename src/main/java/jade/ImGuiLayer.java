@@ -1,6 +1,7 @@
 package jade;
 
 
+import editor.GameViewWindow;
 import imgui.ImFontAtlas;
 import imgui.ImFontConfig;
 import imgui.ImGui;
@@ -58,6 +59,7 @@ public class ImGuiLayer {
 
         setupDockSpace();
         currentScene.sceneImGui();
+        GameViewWindow.imGui();
         imGui();
         tearDownDockSpace();
 

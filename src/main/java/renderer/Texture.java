@@ -25,6 +25,9 @@ public class Texture {
         texId = GL41.glGenTextures();
         GL41.glBindTexture(GL41.GL_TEXTURE_2D, texId);
 
+        GL41.glTexParameteri(GL41.GL_TEXTURE_2D, GL41.GL_TEXTURE_MIN_FILTER, GL41.GL_LINEAR);
+        GL41.glTexParameteri(GL41.GL_TEXTURE_2D, GL41.GL_TEXTURE_MAG_FILTER, GL41.GL_LINEAR);
+
         GL41.glTexImage2D(GL41.GL_TEXTURE_2D, 0, GL41.GL_RGB, width, height, 0, GL41.GL_RGB, GL41.GL_UNSIGNED_BYTE, 0);
     }
 
