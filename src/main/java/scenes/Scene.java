@@ -22,7 +22,7 @@ public abstract class Scene {
     protected Renderer renderer = new Renderer();
     protected Camera camera;
     protected List<GameObject> gameObjects = new ArrayList<>();
-    protected GameObject activeGameObject = null;
+
     protected Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Component.class, new ComponentSerDeser())
@@ -62,16 +62,6 @@ public abstract class Scene {
 
     public Camera camera() {
         return camera;
-    }
-
-    public void sceneImGui() {
-        if (activeGameObject != null) {
-            ImGui.begin("Inspector");
-            activeGameObject.imGui();
-            ImGui.end();
-        }
-
-        imGui();
     }
 
     public void imGui() {
@@ -118,5 +108,9 @@ public abstract class Scene {
             Component.init(maxComponentId);
             this.levelLoaded = true;
         }
+    }
+
+    public GameObject getGameObject(int gameObjectId) {
+        return gameObjects.stream().filter(it -> it.getUid() == gameObjectId).findFirst().orElse(null);
     }
 }

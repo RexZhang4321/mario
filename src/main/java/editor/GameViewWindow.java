@@ -9,7 +9,7 @@ import org.joml.Vector2f;
 
 public class GameViewWindow {
 
-    public static void imGui() {
+    public void imGui() {
         ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 
         ImVec2 windowSize = getLargestSizeForViewport();
@@ -30,7 +30,7 @@ public class GameViewWindow {
         ImGui.end();
     }
 
-    private static ImVec2 getLargestSizeForViewport() {
+    private ImVec2 getLargestSizeForViewport() {
         ImVec2 windowSize = ImGui.getContentRegionAvail();
         windowSize.x -= ImGui.getScrollX();
         windowSize.y -= ImGui.getScrollY();
@@ -48,7 +48,7 @@ public class GameViewWindow {
     }
 
     // return the top left point of a centered viewport
-    private static ImVec2 getCenteredPositionForViewport(ImVec2 aspectSize) {
+    private ImVec2 getCenteredPositionForViewport(ImVec2 aspectSize) {
         ImVec2 windowSize = ImGui.getContentRegionAvail();
         windowSize.x -= ImGui.getScrollX();
         windowSize.y -= ImGui.getScrollY();

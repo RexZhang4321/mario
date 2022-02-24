@@ -2,6 +2,7 @@ package jade;
 
 
 import editor.GameViewWindow;
+import editor.PropertiesWindow;
 import imgui.ImFontAtlas;
 import imgui.ImFontConfig;
 import imgui.ImGui;
@@ -14,6 +15,7 @@ import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import imgui.type.ImBoolean;
 import org.lwjgl.glfw.GLFW;
+import renderer.PickingTexture;
 import scenes.Scene;
 
 public class ImGuiLayer {
@@ -21,13 +23,17 @@ public class ImGuiLayer {
     private long glfwWindow;
     private String glslVersion;
     private boolean showText = false;
+    private GameViewWindow gameViewWindow;
+    private PropertiesWindow propertiesWindow;
 
     private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
-    public ImGuiLayer(long glfwWindow, String glslVersion) {
+    public ImGuiLayer(long glfwWindow, String glslVersion, PickingTexture pickingTexture) {
         this.glfwWindow = glfwWindow;
         this.glslVersion = glslVersion;
+        this.gameViewWindow = new GameViewWindow();
+        this.propertiesWindow = new PropertiesWindow(pickingTexture);
     }
 
     public void init() {
@@ -53,13 +59,15 @@ public class ImGuiLayer {
         imGuiGl3.init(glslVersion);
     }
 
-    public void update(Scene currentScene) {
+    public void update(float dt, Scene currentScene) {
         imGuiGlfw.newFrame();
         ImGui.newFrame();
 
         setupDockSpace();
-        currentScene.sceneImGui();
-        GameViewWindow.imGui();
+        currentScene.imGui();
+        gameViewWindow.imGui();
+        propertiesWindow.update(dt, currentScene);
+        propertiesWindow.imGui();
         imGui();
         tearDownDockSpace();
 
