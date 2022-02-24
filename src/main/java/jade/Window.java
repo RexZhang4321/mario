@@ -6,11 +6,11 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
-import renderer.DebugDraw;
-import renderer.Framebuffer;
+import renderer.*;
 import scenes.LevelEditorScene;
 import scenes.LevelScene;
 import scenes.Scene;
+import util.AssetPool;
 
 
 public class Window {
@@ -31,6 +31,8 @@ public class Window {
     private static ImGuiLayer imGuiLayer;
 
     private Framebuffer framebuffer;
+
+    private PickingTexture pickingTexture;
 
     private Window() {
         width = 1920;
@@ -145,6 +147,7 @@ public class Window {
         imGuiLayer.init();
 
         framebuffer = new Framebuffer(1920, 1080);
+        pickingTexture = new PickingTexture(1920, 1080);
         GL41.glViewport(0, 0, 1920, 1080);
 
         Window.changeScene(0);
@@ -154,10 +157,33 @@ public class Window {
         float beginTime = (float) GLFW.glfwGetTime();
         float dt = -1.0f;
 
+        Shader defaultShader = AssetPool.getShader("assets/shaders/default.glsl");
+        Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
+
         while (!GLFW.glfwWindowShouldClose(glfwWindow)) {
             // poll events
             GLFW.glfwPollEvents();
 
+            // render pass 1: render to picking texture
+            GL41.glDisable(GL41.GL_BLEND);
+            pickingTexture.enableWriting();
+            GL41.glViewport(0, 0, 1920, 1080);
+            GL41.glClearColor(0, 0, 0, 0);
+            GL41.glClear(GL41.GL_COLOR_BUFFER_BIT | GL41.GL_DEPTH_BUFFER_BIT);
+
+            Renderer.bindShader(pickingShader);
+            currentScene.render();
+
+            if (MouseListener.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+                int x = (int) MouseListener.getScreenX();
+                int y = (int) MouseListener.getScreenY();
+                System.out.println(pickingTexture.readPixel(x, y));
+            }
+
+            pickingTexture.disableWriting();
+            GL41.glEnable(GL41.GL_BLEND);
+
+            // render pass 2: render actual game
             DebugDraw.beginFrame();
 
             framebuffer.bind();
@@ -166,7 +192,9 @@ public class Window {
 
             if (dt >= 0) {
                 DebugDraw.draw();
+                Renderer.bindShader(defaultShader);
                 currentScene.update(dt);
+                currentScene.render();
             }
             framebuffer.unbind();
 
