@@ -168,12 +168,12 @@ public class ImGuiLayer {
 
         fontAtlas.addFontFromFileTTF("assets/fonts/Pragmatica-ExtraLight.ttf", 18, fontConfig);
 
-        imGuiGlfw.init(glfwWindow, true);
         imGuiGl3.init(glslVersion);
     }
 
     public void update(float dt, Scene currentScene) {
-        imGuiGlfw.newFrame();
+        startFrame(dt);
+
         ImGui.newFrame();
 
         setupDockSpace();
@@ -182,10 +182,11 @@ public class ImGuiLayer {
         propertiesWindow.update(dt, currentScene);
         propertiesWindow.imGui();
         imGui();
-        tearDownDockSpace();
 
+        ImGui.end();
         ImGui.render();
-        imGuiGl3.renderDrawData(ImGui.getDrawData());
+
+        endFrame();
 
 //        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
 //            final long backupWindowPtr = GLFW.glfwGetCurrentContext();
@@ -193,6 +194,31 @@ public class ImGuiLayer {
 //            ImGui.renderPlatformWindowsDefault();
 //            GLFW.glfwMakeContextCurrent(backupWindowPtr);
 //        }
+    }
+
+    private void startFrame(float dt) {
+        // Get window properties and mouse position
+        float[] winWidth = {Window.getInstance().getWidth()};
+        float[] winHeight = {Window.getInstance().getHeight()};
+        double[] mousePosX = {0};
+        double[] mousePosY = {0};
+        glfwGetCursorPos(glfwWindow, mousePosX, mousePosY);
+
+        // We SHOULD call those methods to update Dear ImGui state for the current frame
+        final ImGuiIO io = ImGui.getIO();
+        io.setDisplaySize(winWidth[0], winHeight[0]);
+        io.setDisplayFramebufferScale(1f, 1f);
+        io.setMousePos((float) mousePosX[0], (float) mousePosY[0]);
+        io.setDeltaTime(dt);
+
+        // Update the mouse cursor
+        final int imguiCursor = ImGui.getMouseCursor();
+        glfwSetCursor(glfwWindow, mouseCursors[imguiCursor]);
+        glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    private void endFrame() {
+        imGuiGl3.renderDrawData(ImGui.getDrawData());
     }
 
     private void imGui() {
@@ -226,10 +252,6 @@ public class ImGuiLayer {
 
         // dock space
         ImGui.dockSpace(ImGui.getID("Dock Space"));
-    }
-
-    private void tearDownDockSpace() {
-        ImGui.end();
     }
 
 }
