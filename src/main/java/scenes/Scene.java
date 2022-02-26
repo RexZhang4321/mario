@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class Scene {
 
@@ -71,7 +72,7 @@ public abstract class Scene {
     public void saveExit() {
         try {
             FileWriter writer = new FileWriter("level.txt", false);
-            writer.write(gson.toJson(this.gameObjects));
+            writer.write(gson.toJson(this.gameObjects.stream().filter(GameObject::shouldSerialize).collect(Collectors.toList())));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();

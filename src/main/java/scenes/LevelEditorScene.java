@@ -4,10 +4,7 @@ package scenes;
 import components.*;
 import imgui.ImGui;
 import imgui.ImVec2;
-import jade.Camera;
-import jade.GameObject;
-import jade.Prefabs;
-import jade.Transform;
+import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -18,6 +15,7 @@ import util.Settings;
 public class LevelEditorScene extends Scene {
 
     private final String spriteSheetPath = "assets/images/spritesheets/decorationsAndBlocks.png";
+    private final String gizmoPath = "assets/images/gizmos.png";
 
     private SpriteSheet spriteSheet;
 
@@ -30,12 +28,16 @@ public class LevelEditorScene extends Scene {
     @Override
     public void init() {
         camera = new Camera(new Vector2f(-250, 0));
+        loadResources();
+
+        SpriteSheet gizmos = AssetPool.getSpriteSheet(gizmoPath);
 
         levelEditorComponents.addComponent(new MouseControls());
         levelEditorComponents.addComponent(new GridLines());
         levelEditorComponents.addComponent(new EditorCamera(camera));
-
-        loadResources();
+        levelEditorComponents.addComponent(new TranslateGizmo(gizmos.getSprite(1),
+                Window.getInstance().getImGuiLayer().getPropertiesWindow()));
+        levelEditorComponents.start();
 
         if (levelLoaded) {
             return;
@@ -90,6 +92,10 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void imGui() {
+        ImGui.begin("Level Editor Stuff");
+        levelEditorComponents.imGui();
+        ImGui.end();
+
         ImGui.begin("Test window");
 
         ImVec2 windowPost = new ImVec2();
@@ -131,6 +137,7 @@ public class LevelEditorScene extends Scene {
         AssetPool.getShader("assets/shaders/default.glsl");
 
         AssetPool.addSpriteSheet(spriteSheetPath, new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 81, 0));
+        AssetPool.addSpriteSheet(gizmoPath, new SpriteSheet(AssetPool.getTexture(gizmoPath), 24, 48, 2, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
 
         spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);

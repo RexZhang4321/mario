@@ -14,6 +14,7 @@ public class GameObject {
     public Transform transform;
 
     private int zIndex;
+    private boolean shouldSerialize = true;
 
     public GameObject(String name, Transform transform, int zIndex) {
         this.name = name;
@@ -78,6 +79,14 @@ public class GameObject {
 
     public List<Component> getComponents() {
         return components;
+    }
+
+    public void setNoSerialize() {
+        shouldSerialize = false;
+    }
+
+    public boolean shouldSerialize() {
+        return shouldSerialize;
     }
 
     public static void init(int maxId) {

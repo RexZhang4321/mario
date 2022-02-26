@@ -68,6 +68,10 @@ public class Window {
         return Window.instance;
     }
 
+    public ImGuiLayer getImGuiLayer() {
+        return imGuiLayer;
+    }
+
     public static Scene getScene() {
         return currentScene;
     }
