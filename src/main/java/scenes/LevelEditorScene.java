@@ -7,7 +7,6 @@ import imgui.ImVec2;
 import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import renderer.DebugDraw;
 import util.AssetPool;
 import util.Settings;
@@ -35,8 +34,7 @@ public class LevelEditorScene extends Scene {
         levelEditorComponents.addComponent(new MouseControls());
         levelEditorComponents.addComponent(new GridLines());
         levelEditorComponents.addComponent(new EditorCamera(camera));
-        levelEditorComponents.addComponent(new TranslateGizmo(gizmos.getSprite(1),
-                Window.getInstance().getImGuiLayer().getPropertiesWindow()));
+        levelEditorComponents.addComponent(new GizmoSystem(gizmos));
         levelEditorComponents.start();
 
         if (levelLoaded) {
@@ -137,7 +135,7 @@ public class LevelEditorScene extends Scene {
         AssetPool.getShader("assets/shaders/default.glsl");
 
         AssetPool.addSpriteSheet(spriteSheetPath, new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 81, 0));
-        AssetPool.addSpriteSheet(gizmoPath, new SpriteSheet(AssetPool.getTexture(gizmoPath), 24, 48, 2, 0));
+        AssetPool.addSpriteSheet(gizmoPath, new SpriteSheet(AssetPool.getTexture(gizmoPath), 24, 48, 3, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
 
         spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
