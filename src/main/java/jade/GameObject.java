@@ -1,6 +1,7 @@
 package jade;
 
 import components.Component;
+import imgui.ImGui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,9 @@ public class GameObject {
 
     public void imGui() {
         for (Component component : components) {
-            component.imGui();
+            if (ImGui.collapsingHeader(component.getClass().getSimpleName())) {
+                component.imGui();
+            }
         }
     }
 
