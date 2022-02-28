@@ -18,7 +18,7 @@ public class LevelEditorScene extends Scene {
 
     private SpriteSheet spriteSheet;
 
-    GameObject levelEditorComponents = new GameObject("LevelEditor", new Transform(new Vector2f()), 0);
+    GameObject levelEditorComponents = this.createGameObject("LevelEditor");
 
     public LevelEditorScene() {
 

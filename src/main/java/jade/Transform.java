@@ -1,14 +1,16 @@
 package jade;
 
+import components.Component;
 import org.joml.Vector2f;
 
 import java.util.Objects;
 
-public class Transform {
+public class Transform extends Component {
 
     public Vector2f position;
     public Vector2f scale;
     public float rotation = 0.0f;
+    public int zIndex;
 
     public Transform() {
         init(new Vector2f(), new Vector2f());
@@ -25,6 +27,7 @@ public class Transform {
     public void init(Vector2f position, Vector2f scale) {
         this.position = position;
         this.scale = scale;
+        this.zIndex = 0;
     }
 
     public Transform copy() {
@@ -41,11 +44,11 @@ public class Transform {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transform transform = (Transform) o;
-        return Objects.equals(position, transform.position) && Objects.equals(scale, transform.scale);
+        return Float.compare(transform.rotation, rotation) == 0 && zIndex == transform.zIndex && Objects.equals(position, transform.position) && Objects.equals(scale, transform.scale);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(position, scale);
+        return Objects.hash(position, scale, rotation, zIndex);
     }
 }

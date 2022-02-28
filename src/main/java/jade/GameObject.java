@@ -11,16 +11,13 @@ public class GameObject {
 
     private String name;
     private List<Component> components;
-    public Transform transform;
+    public transient Transform transform;
 
-    private int zIndex;
     private boolean shouldSerialize = true;
 
-    public GameObject(String name, Transform transform, int zIndex) {
+    public GameObject(String name) {
         this.name = name;
         components = new ArrayList<>();
-        this.transform = transform;
-        this.zIndex = zIndex;
         this.uid = ID_COUNTER;
         ID_COUNTER++;
     }
@@ -61,10 +58,6 @@ public class GameObject {
         for (int i = 0; i < components.size(); i++) {
             components.get(i).start();
         }
-    }
-
-    public int zIndex() {
-        return zIndex;
     }
 
     public void imGui() {
