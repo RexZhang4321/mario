@@ -39,6 +39,17 @@ public class Renderer {
         }
     }
 
+    public void destroyGameObject(GameObject gameObject) {
+        if (gameObject.getComponent(SpriteRenderer.class) == null) {
+            return;
+        }
+        for (RenderBatch batch : batches) {
+            if (batch.destroyIfExists(gameObject)) {
+                return;
+            }
+        }
+    }
+
     private void add(SpriteRenderer spriteRenderer) {
         boolean added = false;
         for (RenderBatch batch : batches) {

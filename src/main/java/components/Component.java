@@ -25,6 +25,10 @@ public abstract class Component {
 
     }
 
+    public void editorUpdate(float dt) {
+
+    }
+
     public void imGui() {
         try {
             Field[] fields = this.getClass().getDeclaredFields();
@@ -87,4 +91,7 @@ public abstract class Component {
         ID_COUNTER = maxId;
     }
 
+    public void destroy() {
+
+    }
 }

@@ -6,86 +6,33 @@ import imgui.ImGui;
 import imgui.ImVec2;
 import jade.*;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
-import renderer.DebugDraw;
 import util.AssetPool;
 import util.Settings;
 
-public class LevelEditorScene extends Scene {
+public class LevelEditorSceneInitializer extends SceneInitializer {
 
     private final String spriteSheetPath = "assets/images/spritesheets/decorationsAndBlocks.png";
     private final String gizmoPath = "assets/images/gizmos.png";
 
     private SpriteSheet spriteSheet;
 
-    GameObject levelEditorComponents = this.createGameObject("LevelEditor");
+    private GameObject levelEditorComponents;
 
-    public LevelEditorScene() {
+    public LevelEditorSceneInitializer() {
 
     }
 
     @Override
-    public void init() {
-        camera = new Camera(new Vector2f(-250, 0));
-        loadResources();
-
+    public void init(Scene scene) {
         SpriteSheet gizmos = AssetPool.getSpriteSheet(gizmoPath);
 
+        levelEditorComponents = scene.createGameObject("LevelEditor");
+        levelEditorComponents.setNoSerialize();
         levelEditorComponents.addComponent(new MouseControls());
         levelEditorComponents.addComponent(new GridLines());
-        levelEditorComponents.addComponent(new EditorCamera(camera));
+        levelEditorComponents.addComponent(new EditorCamera(scene.camera()));
         levelEditorComponents.addComponent(new GizmoSystem(gizmos));
-        levelEditorComponents.start();
-
-        if (levelLoaded) {
-            return;
-        }
-
-        /*
-        // red
-        GameObject gameObject1 = new GameObject(
-                "Object 1", new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 1);
-        SpriteRenderer spriteRenderer1 = new SpriteRenderer();
-        spriteRenderer1.setColor(new Vector4f(1, 0, 0, 1));
-        gameObject1.addComponent(spriteRenderer1);
-        gameObject1.addComponent(new RigidBody());
-
-        // green
-        GameObject gameObject2 = new GameObject("Object 2",
-                new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 2);
-        SpriteRenderer spriteRenderer2 = new SpriteRenderer();
-        Sprite sprite = new Sprite();
-        sprite.setTexture(AssetPool.getTexture("assets/images/blendImage2.png"));
-        spriteRenderer2.setSprite(sprite);
-        gameObject2.addComponent(spriteRenderer2);
-
-        this.addGameObjectToScene(gameObject1);
-        this.addGameObjectToScene(gameObject2);
-
-        this.activeGameObject = gameObject1;
-         */
-    }
-
-    float angle = 0.0f;
-    @Override
-    public void update(float dt) {
-        // System.out.println("FPS: " + 1.0f / dt);
-        levelEditorComponents.update(dt);
-        camera.adjustProjection();
-
-        angle += 1.0f;
-        DebugDraw.addBox2D(new Vector2f(400, 200), new Vector2f(64, 32), angle, new Vector3f(0, 1, 0), 1);
-        DebugDraw.addCircle(new Vector2f(600, 400), 64, new Vector3f(0, 1, 0), 1);
-        // this.gameObjects.get(0).transform.position.x += 10 * dt;
-
-        for (GameObject gameObject : gameObjects) {
-            gameObject.update(dt);
-        }
-    }
-
-    @Override
-    public void render() {
-        renderer.render();
+        scene.addGameObjectToScene(levelEditorComponents);
     }
 
     @Override
@@ -131,7 +78,8 @@ public class LevelEditorScene extends Scene {
         ImGui.end();
     }
 
-    private void loadResources() {
+    @Override
+    public void loadResource(Scene scene) {
         AssetPool.getShader("assets/shaders/default.glsl");
 
         AssetPool.addSpriteSheet(spriteSheetPath, new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 81, 0));
@@ -140,7 +88,7 @@ public class LevelEditorScene extends Scene {
 
         spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
 
-        for (GameObject gameObject : gameObjects) {
+        for (GameObject gameObject : scene.getGameObjects()) {
             if (gameObject.getComponent(SpriteRenderer.class) != null) {
                 SpriteRenderer spriteRenderer = gameObject.getComponent(SpriteRenderer.class);
                 if (spriteRenderer.getTexture() != null) {

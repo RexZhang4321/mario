@@ -72,4 +72,14 @@ public class Physics2D {
         }
     }
 
+    public void destroyGameObject(GameObject gameObject) {
+        RigidBody2D rigidBody2D = gameObject.getComponent(RigidBody2D.class);
+        if (rigidBody2D != null) {
+            if (rigidBody2D.getRawBody() != null) {
+                world.destroyBody(rigidBody2D.getRawBody());
+                rigidBody2D.setRawBody(null);
+            }
+        }
+    }
+
 }

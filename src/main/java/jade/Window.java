@@ -1,5 +1,9 @@
 package jade;
 
+import observers.EventSystem;
+import observers.Observer;
+import observers.events.Event;
+import observers.events.EventType;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -7,13 +11,13 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
 import renderer.*;
-import scenes.LevelEditorScene;
-import scenes.LevelScene;
+import scenes.LevelEditorSceneInitializer;
 import scenes.Scene;
+import scenes.SceneInitializer;
 import util.AssetPool;
 
 
-public class Window {
+public class Window implements Observer {
     private final int width;
     private final int height;
     private final String title;
@@ -21,8 +25,6 @@ public class Window {
     private long glfwWindow;
 
     private final String glslVersion = "#version 410";
-
-    public float r, g, b, a;
 
     private static Window instance;
 
@@ -34,28 +36,21 @@ public class Window {
 
     private PickingTexture pickingTexture;
 
+    private boolean runtimePlaying = false;
+
     private Window() {
         width = 1920;
         height = 1080;
         title = "Mario";
-        r = 1;
-        g = 1;
-        b = 1;
-        a = 1;
+        EventSystem.addObserver(this);
     }
 
-    public static void changeScene(int newScene) {
-        switch (newScene) {
-            case 0:
-                currentScene = new LevelEditorScene();
-                break;
-            case 1:
-                currentScene = new LevelScene();
-                break;
-            default:
-                assert false : "Unknown scene: " + newScene;
-                break;
+    public static void changeScene(SceneInitializer sceneInitializer) {
+        if (currentScene != null) {
+            currentScene.destroy();
         }
+        imGuiLayer.getPropertiesWindow().setActiveGameObject(null);
+        currentScene = new Scene(sceneInitializer);
         currentScene.load();
         currentScene.init();
         currentScene.start();
@@ -100,6 +95,22 @@ public class Window {
         // terminate GLFW and release the resources
         GLFW.glfwTerminate();
         GLFW.glfwSetErrorCallback(null).free();
+    }
+
+    @Override
+    public void onNotify(GameObject gameObject, Event event) {
+        if (event.eventType == EventType.GameEngineStartPlay) {
+            this.runtimePlaying = true;
+            currentScene.save();
+            Window.changeScene(new LevelEditorSceneInitializer());
+        } else if (event.eventType == EventType.GameEngineStopPlay) {
+            this.runtimePlaying = false;
+            Window.changeScene(new LevelEditorSceneInitializer());
+        } else if (event.eventType == EventType.LoadLevel) {
+            Window.changeScene(new LevelEditorSceneInitializer());
+        } else if (event.eventType == EventType.SaveLevel) {
+            currentScene.save();
+        }
     }
 
     private void init() {
@@ -154,7 +165,7 @@ public class Window {
         imGuiLayer = new ImGuiLayer(glfwWindow, glslVersion, pickingTexture);
         imGuiLayer.init();
 
-        Window.changeScene(0);
+        Window.changeScene(new LevelEditorSceneInitializer());
     }
 
     private void loop() {
@@ -185,13 +196,17 @@ public class Window {
             DebugDraw.beginFrame();
 
             framebuffer.bind();
-            GL41.glClearColor(r, g, b, a);
+            GL41.glClearColor(1, 1, 1, 1);
             GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
                 DebugDraw.draw();
                 Renderer.bindShader(defaultShader);
-                currentScene.update(dt);
+                if (runtimePlaying) {
+                    currentScene.update(dt);
+                } else {
+                    currentScene.editorUpdate(dt);
+                }
                 currentScene.render();
             }
             framebuffer.unbind();
@@ -206,7 +221,5 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
-
-        currentScene.saveExit();
     }
 }

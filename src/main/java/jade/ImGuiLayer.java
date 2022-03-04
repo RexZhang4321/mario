@@ -2,6 +2,7 @@ package jade;
 
 
 import editor.GameViewWindow;
+import editor.MenuBar;
 import editor.PropertiesWindow;
 import imgui.ImFontAtlas;
 import imgui.ImFontConfig;
@@ -25,6 +26,7 @@ public class ImGuiLayer {
     private boolean showText = false;
     private GameViewWindow gameViewWindow;
     private PropertiesWindow propertiesWindow;
+    private MenuBar menuBar;
 
     // Mouse cursors provided by GLFW
     private final long[] mouseCursors = new long[ImGuiMouseCursor.COUNT];
@@ -36,6 +38,7 @@ public class ImGuiLayer {
         this.glslVersion = glslVersion;
         this.gameViewWindow = new GameViewWindow();
         this.propertiesWindow = new PropertiesWindow(pickingTexture);
+        this.menuBar = new MenuBar();
     }
 
     public void init() {
@@ -182,6 +185,7 @@ public class ImGuiLayer {
         gameViewWindow.imGui();
         propertiesWindow.update(dt, currentScene);
         propertiesWindow.imGui();
+        menuBar.imGui();
         imGui();
 
         ImGui.end();

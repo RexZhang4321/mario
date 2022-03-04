@@ -15,6 +15,7 @@ public class GameObject {
     public transient Transform transform;
 
     private boolean shouldSerialize = true;
+    private boolean isDead = false;
 
     public GameObject(String name) {
         this.name = name;
@@ -55,9 +56,22 @@ public class GameObject {
         }
     }
 
+    public void editorUpdate(float dt) {
+        for (Component component : components) {
+            component.editorUpdate(dt);
+        }
+    }
+
     public void start() {
         for (int i = 0; i < components.size(); i++) {
             components.get(i).start();
+        }
+    }
+
+    public void destroy() {
+        this.isDead = true;
+        for (int i = 0; i < components.size(); i++) {
+            components.get(i).destroy();
         }
     }
 
@@ -87,5 +101,9 @@ public class GameObject {
 
     public static void init(int maxId) {
         ID_COUNTER = maxId;
+    }
+
+    public boolean isDead() {
+        return isDead;
     }
 }
