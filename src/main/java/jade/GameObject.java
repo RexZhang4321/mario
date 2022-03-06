@@ -1,7 +1,12 @@
 package jade;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import components.Component;
+import components.ComponentSerDeser;
+import components.SpriteRenderer;
 import imgui.ImGui;
+import util.AssetPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,5 +110,29 @@ public class GameObject {
 
     public boolean isDead() {
         return isDead;
+    }
+
+    public void generateUid() {
+        this.uid = ID_COUNTER;
+        ID_COUNTER++;
+    }
+
+    public GameObject copy() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Component.class, new ComponentSerDeser())
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
+                .create();
+        String objAsJson = gson.toJson(this);
+        GameObject obj = gson.fromJson(objAsJson, GameObject.class);
+        obj.generateUid();
+        for (Component component : obj.getComponents()) {
+            component.generateId();
+        }
+
+        SpriteRenderer spriteRenderer = obj.getComponent(SpriteRenderer.class);
+        if (spriteRenderer != null && spriteRenderer.getTexture() != null) {
+            spriteRenderer.setTexture(AssetPool.getTexture(spriteRenderer.getTexture().getFilePath()));
+        }
+        return obj;
     }
 }

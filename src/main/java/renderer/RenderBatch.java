@@ -7,7 +7,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL41;
-import util.AssetPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +46,12 @@ public class RenderBatch implements Comparable<RenderBatch> {
     private int maxBatchSize;
 
     private int zIndex;
+    private Renderer renderer;
 
-    public RenderBatch(int maxBatchSize, int zIndex) {
+    public RenderBatch(int maxBatchSize, int zIndex, Renderer renderer) {
         this.zIndex = zIndex;
         this.maxBatchSize = maxBatchSize;
+        this.renderer = renderer;
         sprites = new SpriteRenderer[maxBatchSize];
 
         // 4 vertices quads
@@ -130,6 +131,13 @@ public class RenderBatch implements Comparable<RenderBatch> {
                 spriteRenderer.setClean();
                 reBufferData = true;
             }
+
+            // TODO: find a cleaner way to render z-index change
+            if (spriteRenderer.gameObject.transform.zIndex != this.zIndex) {
+                destroyIfExists(spriteRenderer.gameObject);
+                renderer.add(spriteRenderer.gameObject);
+                i--;
+            }
         }
 
         if (reBufferData) {
@@ -203,10 +211,10 @@ public class RenderBatch implements Comparable<RenderBatch> {
         // 3 0
         // 2 1
         float[][] vertexOffset = new float[][] {
-                {1.0f, 1.0f},
-                {1.0f, 0.0f},
-                {0.0f, 0.0f},
-                {0.0f, 1.0f}
+                {0.5f, 0.5f},
+                {0.5f, -0.5f},
+                {-0.5f, -0.5f},
+                {-0.5f, 0.5f}
         };
         for (int i = 0; i < vertexOffset.length; i++) {
             float[] vOffset = vertexOffset[i];

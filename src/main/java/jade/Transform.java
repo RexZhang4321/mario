@@ -10,7 +10,7 @@ public class Transform extends Component {
 
     public Vector2f position;
     public Vector2f scale;
-    public float rotation = 0.0f;
+    public float rotation;
     public int zIndex;
 
     public Transform() {
@@ -29,6 +29,7 @@ public class Transform extends Component {
         this.position = position;
         this.scale = scale;
         this.zIndex = 0;
+        this.rotation = 0.0f;
     }
 
     public Transform copy() {
@@ -38,13 +39,16 @@ public class Transform extends Component {
     public void copyTo(Transform to) {
         to.position.set(this.position);
         to.scale.set(this.scale);
+        to.rotation = this.rotation;
+        to.zIndex = this.zIndex;
     }
 
     @Override
     public void imGui() {
         JImGui.drawVec2Control("Position", this.position);
         JImGui.drawVec2Control("Scale", this.scale, 32.0f);
-        JImGui.dragInt("Z-Index", this.zIndex);
+        this.zIndex = JImGui.dragInt("Z-Index", this.zIndex);
+        this.rotation = JImGui.dragFloat("Rotation", this.rotation);
     }
 
     @Override

@@ -1,15 +1,14 @@
 package components;
 
 import editor.PropertiesWindow;
-import jade.GameObject;
-import jade.MouseListener;
-import jade.Prefabs;
-import jade.Window;
+import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 
 public class Gizmo extends Component {
+
+    private static final float RESIZE_FACTOR = 80.0f;
 
     private Vector4f xAxisColor = new Vector4f(1, 0.3f, 0.3f, 1);
     private Vector4f xAxisColorHover = new Vector4f(1, 0, 0, 1);
@@ -22,22 +21,22 @@ public class Gizmo extends Component {
     private SpriteRenderer yAxisSprite;
     protected GameObject activeGameObject = null;
 
-    private Vector2f xAxisOffset = new Vector2f(64.0f, -3.0f);
-    private Vector2f yAxisOffset = new Vector2f(13.0f, 61.0f);
+    private Vector2f xAxisOffset = new Vector2f(24.0f / RESIZE_FACTOR, -6.0f / RESIZE_FACTOR);
+    private Vector2f yAxisOffset = new Vector2f(-7.0f / RESIZE_FACTOR, 21.0f / RESIZE_FACTOR);
 
     protected boolean xAxisActive = false;
     protected boolean yAxisActive = false;
 
     private boolean using = false;
 
-    private int gizmoWidth = 16;
-    private int gizmoHeight = 48;
+    private float gizmoWidth = 16 / RESIZE_FACTOR;
+    private float gizmoHeight = 48 / RESIZE_FACTOR;
 
     private PropertiesWindow propertiesWindow;
 
     public Gizmo(Sprite arrowSprite, PropertiesWindow propertiesWindow) {
-        this.xAxisObject = Prefabs.generateSpriteObject(arrowSprite, 16, 48);
-        this.yAxisObject = Prefabs.generateSpriteObject(arrowSprite, 16, 48);
+        this.xAxisObject = Prefabs.generateSpriteObject(arrowSprite, gizmoWidth, gizmoHeight);
+        this.yAxisObject = Prefabs.generateSpriteObject(arrowSprite, gizmoWidth, gizmoHeight);
         this.xAxisSprite = xAxisObject.getComponent(SpriteRenderer.class);
         this.yAxisSprite = yAxisObject.getComponent(SpriteRenderer.class);
         this.propertiesWindow = propertiesWindow;
@@ -77,6 +76,21 @@ public class Gizmo extends Component {
         this.activeGameObject = this.propertiesWindow.getActiveGameObject();
         if (this.activeGameObject != null) {
             this.setActive();
+
+            // TODO: move this into it's own keyEditorBinding component class
+            if (KeyListener.isKeyPressed(GLFW.GLFW_KEY_LEFT_CONTROL)
+                    && KeyListener.keyBeginPress(GLFW.GLFW_KEY_D)) {
+                GameObject newGameObject = this.activeGameObject.copy();
+                Window.getScene().addGameObjectToScene(newGameObject);
+                newGameObject.transform.position.add(0.1f, 0.1f);
+                this.propertiesWindow.setActiveGameObject(newGameObject);
+                return;
+            } else if (KeyListener.keyBeginPress(GLFW.GLFW_KEY_DELETE)) {
+                activeGameObject.destroy();
+                this.setInactive();
+                this.propertiesWindow.setActiveGameObject(null);
+                return;
+            }
         } else {
             this.setInactive();
             return;
@@ -124,11 +138,13 @@ public class Gizmo extends Component {
     }
 
     private boolean checkXHoverState() {
+        float xOffset = gizmoHeight / 2.0f;
+        float yOffset = gizmoWidth / 2.0f;
         Vector2f mousePos = new Vector2f(MouseListener.getOrthoX(), MouseListener.getOrthoY());
-        if (mousePos.x >= xAxisObject.transform.position.x - gizmoHeight
-                && mousePos.x <= xAxisObject.transform.position.x
-                && mousePos.y <= xAxisObject.transform.position.y + gizmoWidth
-                && mousePos.y >= xAxisObject.transform.position.y) {
+        if (mousePos.x >= xAxisObject.transform.position.x + xOffset - gizmoHeight
+                && mousePos.x <= xAxisObject.transform.position.x + xOffset
+                && mousePos.y <= xAxisObject.transform.position.y - yOffset + gizmoWidth
+                && mousePos.y >= xAxisObject.transform.position.y - yOffset) {
             xAxisSprite.setColor(xAxisColorHover);
             return true;
         } else {
@@ -138,11 +154,13 @@ public class Gizmo extends Component {
     }
 
     private boolean checkYHoverState() {
+        float xOffset = gizmoWidth / 2.0f;
+        float yOffset = gizmoHeight / 2.0f;
         Vector2f mousePos = new Vector2f(MouseListener.getOrthoX(), MouseListener.getOrthoY());
-        if (mousePos.x >= yAxisObject.transform.position.x - gizmoWidth
-                && mousePos.x <= yAxisObject.transform.position.x
-                && mousePos.y <= yAxisObject.transform.position.y
-                && mousePos.y >= yAxisObject.transform.position.y - gizmoHeight) {
+        if (mousePos.x >= yAxisObject.transform.position.x + xOffset - gizmoWidth
+                && mousePos.x <= yAxisObject.transform.position.x + xOffset
+                && mousePos.y <= yAxisObject.transform.position.y + yOffset
+                && mousePos.y >= yAxisObject.transform.position.y + yOffset - gizmoHeight) {
             yAxisSprite.setColor(yAxisColorHover);
             return true;
         } else {
