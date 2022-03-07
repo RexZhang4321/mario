@@ -1,5 +1,6 @@
 package jade;
 
+import imgui.ImGui;
 import observers.EventSystem;
 import observers.Observer;
 import observers.events.Event;
@@ -18,8 +19,8 @@ import util.AssetPool;
 
 
 public class Window implements Observer {
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private final String title;
 
     private long glfwWindow;
@@ -126,8 +127,8 @@ public class Window implements Observer {
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 1);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
+        GLFW.glfwWindowHint(GLFW.GLFW_MAXIMIZED, GLFW.GLFW_TRUE);
 
         // create the window
         glfwWindow = GLFW.glfwCreateWindow(this.width, this.height, this.title, MemoryUtil.NULL, MemoryUtil.NULL);
@@ -139,6 +140,10 @@ public class Window implements Observer {
         GLFW.glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         GLFW.glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
         GLFW.glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+        GLFW.glfwSetWindowSizeCallback(glfwWindow, (w, newWidth, newHeight) -> {
+            Window.getInstance().width = newWidth;
+            Window.getInstance().height = newHeight;
+        });
 
         // make the OpenGL context current
         GLFW.glfwMakeContextCurrent(glfwWindow);

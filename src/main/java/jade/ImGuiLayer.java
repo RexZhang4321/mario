@@ -1,19 +1,17 @@
 package jade;
 
-
 import editor.GameViewWindow;
 import editor.MenuBar;
 import editor.PropertiesWindow;
-import imgui.ImFontAtlas;
-import imgui.ImFontConfig;
-import imgui.ImGui;
-import imgui.ImGuiIO;
+import imgui.*;
 import imgui.callback.ImStrConsumer;
 import imgui.callback.ImStrSupplier;
 import imgui.flag.*;
 import imgui.gl3.ImGuiImplGl3;
+import imgui.glfw.ImGuiImplGlfw;
 import imgui.type.ImBoolean;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL41;
 import renderer.PickingTexture;
 import scenes.Scene;
 
@@ -28,10 +26,8 @@ public class ImGuiLayer {
     private PropertiesWindow propertiesWindow;
     private MenuBar menuBar;
 
-    // Mouse cursors provided by GLFW
-    private final long[] mouseCursors = new long[ImGuiMouseCursor.COUNT];
-
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
+    private final ImGuiImplGlfw imGuiImplGlfw = new ImGuiImplGlfw();
 
     public ImGuiLayer(long glfwWindow, String glslVersion, PickingTexture pickingTexture) {
         this.glfwWindow = glfwWindow;
@@ -46,53 +42,11 @@ public class ImGuiLayer {
         ImGuiIO io = ImGui.getIO();
 
         io.setIniFilename("imgui.ini");
-        io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard); // Navigation with keyboard
-        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
-        io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors); // Mouse cursors to display while resizing windows etc.
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.ViewportsEnable);
         io.setBackendPlatformName("imgui_java_impl_glfw");
 
         // ------------------------------------------------------------
-        // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-        final int[] keyMap = new int[ImGuiKey.COUNT];
-        keyMap[ImGuiKey.Tab] = GLFW_KEY_TAB;
-        keyMap[ImGuiKey.LeftArrow] = GLFW_KEY_LEFT;
-        keyMap[ImGuiKey.RightArrow] = GLFW_KEY_RIGHT;
-        keyMap[ImGuiKey.UpArrow] = GLFW_KEY_UP;
-        keyMap[ImGuiKey.DownArrow] = GLFW_KEY_DOWN;
-        keyMap[ImGuiKey.PageUp] = GLFW_KEY_PAGE_UP;
-        keyMap[ImGuiKey.PageDown] = GLFW_KEY_PAGE_DOWN;
-        keyMap[ImGuiKey.Home] = GLFW_KEY_HOME;
-        keyMap[ImGuiKey.End] = GLFW_KEY_END;
-        keyMap[ImGuiKey.Insert] = GLFW_KEY_INSERT;
-        keyMap[ImGuiKey.Delete] = GLFW_KEY_DELETE;
-        keyMap[ImGuiKey.Backspace] = GLFW_KEY_BACKSPACE;
-        keyMap[ImGuiKey.Space] = GLFW_KEY_SPACE;
-        keyMap[ImGuiKey.Enter] = GLFW_KEY_ENTER;
-        keyMap[ImGuiKey.Escape] = GLFW_KEY_ESCAPE;
-        keyMap[ImGuiKey.KeyPadEnter] = GLFW_KEY_KP_ENTER;
-        keyMap[ImGuiKey.A] = GLFW_KEY_A;
-        keyMap[ImGuiKey.C] = GLFW_KEY_C;
-        keyMap[ImGuiKey.V] = GLFW_KEY_V;
-        keyMap[ImGuiKey.X] = GLFW_KEY_X;
-        keyMap[ImGuiKey.Y] = GLFW_KEY_Y;
-        keyMap[ImGuiKey.Z] = GLFW_KEY_Z;
-        io.setKeyMap(keyMap);
-
-        // ------------------------------------------------------------
-        // Mouse cursors mapping
-        mouseCursors[ImGuiMouseCursor.Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mouseCursors[ImGuiMouseCursor.TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-        mouseCursors[ImGuiMouseCursor.ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mouseCursors[ImGuiMouseCursor.ResizeNS] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
-        mouseCursors[ImGuiMouseCursor.ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-        mouseCursors[ImGuiMouseCursor.ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mouseCursors[ImGuiMouseCursor.ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mouseCursors[ImGuiMouseCursor.Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-        mouseCursors[ImGuiMouseCursor.NotAllowed] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-
-        // ------------------------------------------------------------
         // GLFW callbacks to handle user input
-
         glfwSetKeyCallback(glfwWindow, (w, key, scancode, action, mods) -> {
             if (action == GLFW_PRESS) {
                 io.setKeysDown(key, true);
@@ -172,33 +126,22 @@ public class ImGuiLayer {
 
         fontAtlas.addFontFromFileTTF("assets/fonts/Pragmatica-ExtraLight.ttf", 18, fontConfig);
 
+        imGuiImplGlfw.init(glfwWindow, false);
         imGuiGl3.init(glslVersion);
     }
 
     public void update(float dt, Scene currentScene) {
         startFrame(dt);
 
-        ImGui.newFrame();
-
         setupDockSpace();
         currentScene.imGui();
         gameViewWindow.imGui();
         propertiesWindow.update(dt, currentScene);
         propertiesWindow.imGui();
-        menuBar.imGui();
-        imGui();
 
-        ImGui.end();
-        ImGui.render();
+        // imGui();
 
         endFrame();
-
-//        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
-//            final long backupWindowPtr = GLFW.glfwGetCurrentContext();
-//            ImGui.updatePlatformWindows();
-//            ImGui.renderPlatformWindowsDefault();
-//            GLFW.glfwMakeContextCurrent(backupWindowPtr);
-//        }
     }
 
     public PropertiesWindow getPropertiesWindow() {
@@ -206,28 +149,23 @@ public class ImGuiLayer {
     }
 
     private void startFrame(float dt) {
-        // Get window properties and mouse position
-        float[] winWidth = {Window.getInstance().getWidth()};
-        float[] winHeight = {Window.getInstance().getHeight()};
-        double[] mousePosX = {0};
-        double[] mousePosY = {0};
-        glfwGetCursorPos(glfwWindow, mousePosX, mousePosY);
-
-        // We SHOULD call those methods to update Dear ImGui state for the current frame
-        final ImGuiIO io = ImGui.getIO();
-        io.setDisplaySize(winWidth[0], winHeight[0]);
-        io.setDisplayFramebufferScale(1f, 1f);
-        io.setMousePos((float) mousePosX[0], (float) mousePosY[0]);
-        io.setDeltaTime(dt);
-
-        // Update the mouse cursor
-        final int imguiCursor = ImGui.getMouseCursor();
-        glfwSetCursor(glfwWindow, mouseCursors[imguiCursor]);
-        glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        imGuiImplGlfw.newFrame();
+        ImGui.newFrame();
     }
 
     private void endFrame() {
+        GL41.glBindFramebuffer(GL41.GL_FRAMEBUFFER, 0);
+        GL41.glViewport(0, 0, Window.getInstance().getWidth(), Window.getInstance().getHeight());
+        GL41.glClearColor(0, 0, 0, 1);
+        GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
+
+        ImGui.render();
         imGuiGl3.renderDrawData(ImGui.getDrawData());
+
+        long backupWindowPtr = GLFW.glfwGetCurrentContext();
+        ImGui.updatePlatformWindows();
+        ImGui.renderPlatformWindowsDefault();
+        GLFW.glfwMakeContextCurrent(backupWindowPtr);
     }
 
     private void imGui() {
@@ -249,8 +187,12 @@ public class ImGuiLayer {
 
     private void setupDockSpace() {
         int windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
-        ImGui.setNextWindowPos(0.0f, 0.0f, ImGuiCond.Always);
-        ImGui.setNextWindowSize(Window.getInstance().getWidth(), Window.getInstance().getHeight());
+
+        ImGuiViewport mainViewport = ImGui.getMainViewport();
+        ImGui.setNextWindowPos(mainViewport.getWorkPosX(), mainViewport.getWorkPosY());
+        ImGui.setNextWindowSize(mainViewport.getWorkSizeX(), mainViewport.getWorkSizeY());
+        ImGui.setNextWindowViewport(mainViewport.getID());
+
         ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
         ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
         windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
@@ -261,6 +203,8 @@ public class ImGuiLayer {
 
         // dock space
         ImGui.dockSpace(ImGui.getID("Dock Space"));
+        menuBar.imGui();
+        ImGui.end();
     }
 
 }
