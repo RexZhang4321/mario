@@ -49,6 +49,10 @@ public class GameObject {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void addComponent(Component component) {
         component.generateId();
         components.add(component);
