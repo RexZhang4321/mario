@@ -15,7 +15,7 @@ public class GameObject {
     private static int ID_COUNTER = 0;
     private int uid = -1;
 
-    private String name;
+    public String name;
     private List<Component> components;
     public transient Transform transform;
 
@@ -51,6 +51,10 @@ public class GameObject {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void addComponent(Component component) {
