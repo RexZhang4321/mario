@@ -9,6 +9,9 @@ import org.joml.Vector2f;
 import util.AssetPool;
 import util.Settings;
 
+import java.io.File;
+import java.util.Collection;
+
 import static jade.Prefabs.itemSpriteSheetPath;
 import static jade.Prefabs.marioSpriteSheetPath;
 
@@ -111,6 +114,21 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                 ImGui.sameLine();
                 ImGui.endTabItem();
             }
+
+            if (ImGui.beginTabItem("Sounds")) {
+                Collection<Sound> sounds = AssetPool.getAllSounds();
+                for (Sound sound : sounds) {
+                    File tmp = new File(sound.getFilePath());
+                    if (ImGui.button(tmp.getName())) {
+                        if (!sound.isPlaying()) {
+                            sound.play();
+                        } else {
+                            sound.stop();
+                        }
+                    }
+                }
+                ImGui.endTabItem();
+            }
             ImGui.endTabBar();
         }
 
@@ -126,6 +144,11 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
         AssetPool.addSpriteSheet(marioSpriteSheetPath, new SpriteSheet(AssetPool.getTexture(marioSpriteSheetPath), 16, 16, 26, 0));
         AssetPool.addSpriteSheet(itemSpriteSheetPath, new SpriteSheet(AssetPool.getTexture(itemSpriteSheetPath), 16, 16, 43, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
+
+        File soundDir = new File("assets/sounds/");
+        for (String soundPath : soundDir.list()) {
+            AssetPool.addSound("assets/sounds/" + soundPath, false);
+        }
 
         for (GameObject gameObject : scene.getGameObjects()) {
             if (gameObject.getComponent(SpriteRenderer.class) != null) {

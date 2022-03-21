@@ -96,7 +96,7 @@ public class ImGuiLayer {
         glfwSetScrollCallback(glfwWindow, (w, xOffset, yOffset) -> {
             io.setMouseWheelH(io.getMouseWheelH() + (float) xOffset);
             io.setMouseWheel(io.getMouseWheel() + (float) yOffset);
-            if (gameViewWindow.getWantCaptureMouse()) {
+            if (!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()) {
                 MouseListener.mouseScrollCallback(w, xOffset, yOffset);
             }
         });

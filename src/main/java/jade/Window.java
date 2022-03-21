@@ -1,6 +1,5 @@
 package jade;
 
-import imgui.ImGui;
 import observers.EventSystem;
 import observers.Observer;
 import observers.events.Event;
@@ -8,6 +7,7 @@ import observers.events.EventType;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.openal.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
@@ -38,6 +38,9 @@ public class Window implements Observer {
     private PickingTexture pickingTexture;
 
     private boolean runtimePlaying = false;
+
+    private long audioContext;
+    private long audioDevice;
 
     private Window() {
         width = 1920;
@@ -92,6 +95,10 @@ public class Window implements Observer {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
         init();
         loop();
+
+        // destroy the audio context
+        ALC10.alcDestroyContext(audioContext);
+        ALC10.alcCloseDevice(audioDevice);
 
         // terminate GLFW and release the resources
         GLFW.glfwTerminate();
@@ -152,6 +159,21 @@ public class Window implements Observer {
 
         // make the window visible
         GLFW.glfwShowWindow(glfwWindow);
+
+        // init audio device
+        String defaultDeviceName = ALC10.alcGetString(0, ALC10.ALC_DEFAULT_DEVICE_SPECIFIER);
+        audioDevice = ALC10.alcOpenDevice(defaultDeviceName);
+
+        int[] attributes = {0};
+        audioContext = ALC10.alcCreateContext(audioDevice, attributes);
+        ALC10.alcMakeContextCurrent(audioContext);
+
+        ALCCapabilities alcCapabilities = ALC.createCapabilities(audioDevice);
+        ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
+
+        if (!alCapabilities.OpenAL10) {
+            assert false : "Audio library not support.";
+        }
 
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
