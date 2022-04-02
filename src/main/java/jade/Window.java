@@ -227,7 +227,6 @@ public class Window implements Observer {
             GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
-                DebugDraw.draw();
                 Renderer.bindShader(defaultShader);
                 if (runtimePlaying) {
                     currentScene.update(dt);
@@ -235,14 +234,15 @@ public class Window implements Observer {
                     currentScene.editorUpdate(dt);
                 }
                 currentScene.render();
+                DebugDraw.draw();
             }
             framebuffer.unbind();
 
             imGuiLayer.update(dt, currentScene);
 
-            GLFW.glfwSwapBuffers(glfwWindow);
-
             MouseListener.endFrame();
+
+            GLFW.glfwSwapBuffers(glfwWindow);
 
             float endTime = (float) GLFW.glfwGetTime();
             dt = endTime - beginTime;

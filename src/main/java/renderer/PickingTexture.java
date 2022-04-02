@@ -1,5 +1,6 @@
 package renderer;
 
+import org.joml.Vector2i;
 import org.lwjgl.opengl.GL41;
 
 public class PickingTexture {
@@ -63,7 +64,22 @@ public class PickingTexture {
         float pixels[] = new float[3];
         GL41.glReadPixels(x, y, 1, 1, GL41.GL_RGB, GL41.GL_FLOAT, pixels);
 
-        return (int) (pixels[0] - 1);
+        return (int)(pixels[0]) - 1;
+    }
+
+    public float[] readPixels(Vector2i start, Vector2i end) {
+        GL41.glBindFramebuffer(GL41.GL_READ_FRAMEBUFFER, fboId);
+        GL41.glReadBuffer(GL41.GL_COLOR_ATTACHMENT0);
+
+        Vector2i size = new Vector2i(end).sub(start).absolute();
+        int numPixels = size.x * size.y;
+        float pixels[] = new float[3 * numPixels];
+        GL41.glReadPixels(start.x, start.y, size.x, size.y, GL41.GL_RGB, GL41.GL_FLOAT, pixels);
+        for (int i = 0; i < pixels.length; i++) {
+            pixels[i] -= 1;
+        }
+
+        return pixels;
     }
 
 }

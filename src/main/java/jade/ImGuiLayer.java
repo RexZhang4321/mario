@@ -98,6 +98,8 @@ public class ImGuiLayer {
             io.setMouseWheel(io.getMouseWheel() + (float) yOffset);
             if (!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()) {
                 MouseListener.mouseScrollCallback(w, xOffset, yOffset);
+            } else {
+                MouseListener.clear();
             }
         });
 
@@ -139,7 +141,6 @@ public class ImGuiLayer {
         setupDockSpace();
         currentScene.imGui();
         gameViewWindow.imGui();
-        propertiesWindow.update(dt, currentScene);
         propertiesWindow.imGui();
         sceneHierarchyWindow.imGui();
         // imGui();
@@ -149,6 +150,10 @@ public class ImGuiLayer {
 
     public PropertiesWindow getPropertiesWindow() {
         return propertiesWindow;
+    }
+
+    public GameViewWindow getGameViewWindow() {
+        return gameViewWindow;
     }
 
     private void startFrame(float dt) {

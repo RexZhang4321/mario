@@ -5,6 +5,8 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Arrays;
+
 public class MouseListener {
 
     private static MouseListener instance;
@@ -35,6 +37,9 @@ public class MouseListener {
     }
 
     public static void mousePosCallback(long window, double xPos, double yPos) {
+        if (!Window.getInstance().getImGuiLayer().getGameViewWindow().shouldCaptureMouse()) {
+            clear();
+        }
         getInstance().lastX = getInstance().xPos;
         getInstance().lastY = getInstance().yPos;
         getInstance().xPos = xPos;
@@ -43,6 +48,33 @@ public class MouseListener {
         if (getInstance().numMouseButtonDown > 0) {
             getInstance().isDragging = true;
         }
+    }
+
+    public static Vector2f screenToWorld(Vector2f screenCoords) {
+        Vector2f normalizedScreenCoords = new Vector2f(
+                screenCoords.x / Window.getInstance().getWidth(),
+                screenCoords.y / Window.getInstance().getHeight()
+        );
+        normalizedScreenCoords.mul(2.0f).sub(new Vector2f(1.0f, 1.0f));
+        Camera camera = Window.getScene().camera();
+        Vector4f tmp = new Vector4f(normalizedScreenCoords.x, normalizedScreenCoords.y, 0, 1);
+        Matrix4f inverseView = new Matrix4f(camera.getInverseView());
+        Matrix4f inverseProjection = new Matrix4f(camera.getInverseProjection());
+        tmp.mul(inverseView.mul(inverseProjection));
+        return new Vector2f(tmp.x, tmp.y);
+    }
+
+    public static Vector2f worldToScreen(Vector2f worldCoords) {
+        Camera camera = Window.getScene().camera();
+        Vector4f normalizedScreenCoordsSpacePosition = new Vector4f(worldCoords.x, worldCoords.y, 0, 1);
+        Matrix4f view = new Matrix4f(camera.getViewMatrix());
+        Matrix4f projection = new Matrix4f(camera.getProjectionMatrix());
+        normalizedScreenCoordsSpacePosition.mul(projection.mul(view));
+        Vector2f windowSpace = new Vector2f(normalizedScreenCoordsSpacePosition.x, normalizedScreenCoordsSpacePosition.y)
+                .mul(1.0f / normalizedScreenCoordsSpacePosition.w);
+        windowSpace.add(new Vector2f(1.0f, 1.0f)).mul(0.5f);
+        windowSpace.mul(new Vector2f(Window.getInstance().getWidth(), Window.getInstance().getHeight()));
+        return windowSpace;
     }
 
     public static void mouseButtonCallback(long window, int button, int action, int mods) {
@@ -67,8 +99,20 @@ public class MouseListener {
     public static void endFrame() {
         getInstance().scrollX = 0.0;
         getInstance().scrollY = 0.0;
-        getInstance().lastX = getInstance().xPos;
-        getInstance().lastY = getInstance().yPos;
+        //getInstance().lastX = getInstance().xPos;
+        //getInstance().lastY = getInstance().yPos;
+    }
+
+    public static void clear() {
+        getInstance().scrollX = 0.0;
+        getInstance().scrollY = 0.0;
+        getInstance().lastX = 0;
+        getInstance().lastY = 0;
+        getInstance().xPos = 0;
+        getInstance().yPos = 0;
+        getInstance().numMouseButtonDown = 0;
+        getInstance().isDragging = false;
+        Arrays.fill(getInstance().mouseButtonPressed, false);
     }
 
     public static float getX() {

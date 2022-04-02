@@ -52,6 +52,13 @@ public class GameViewWindow {
         ImGui.end();
     }
 
+    public boolean shouldCaptureMouse() {
+        return MouseListener.getX() >= leftX
+                && MouseListener.getX() <= rightX
+                && MouseListener.getY() >= bottomY
+                && MouseListener.getY() <= topY;
+    }
+
     private ImVec2 getLargestSizeForViewport() {
         ImVec2 windowSize = ImGui.getContentRegionAvail();
 
