@@ -4,14 +4,13 @@ import jade.GameObject;
 import jade.Transform;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.World;
+import org.jbox2d.dynamics.*;
 import org.joml.Vector2f;
 import physics2d.components.Box2DCollider;
 import physics2d.components.CircleCollider;
 import physics2d.components.RigidBody2D;
+
+import java.util.Objects;
 
 public class Physics2D {
     private Vec2 gravity = new Vec2(0, -10.0f);
@@ -33,6 +32,7 @@ public class Physics2D {
             bodyDef.angularDamping = rigidBody2D.getAngularDamping();
             bodyDef.linearDamping = rigidBody2D.getLinearDamping();
             bodyDef.fixedRotation = rigidBody2D.isFixedRotation();
+            bodyDef.userData = rigidBody2D.gameObject;
             bodyDef.bullet = rigidBody2D.isContinuousCollision();
 
             switch (rigidBody2D.getBodyType()) {
@@ -41,26 +41,19 @@ public class Physics2D {
                 case Dynamic -> bodyDef.type = BodyType.DYNAMIC;
             }
 
-            PolygonShape shape = new PolygonShape();
-            CircleCollider circleCollider;
-            Box2DCollider box2DCollider;
-            if ((circleCollider = gameObject.getComponent(CircleCollider.class)) != null) {
-                shape.setRadius(circleCollider.getRadius());
-            } else if ((box2DCollider = gameObject.getComponent(Box2DCollider.class)) != null) {
-                Vector2f halfSize = new Vector2f(box2DCollider.getHalfSize()).mul(0.5f);
-                Vector2f offset = box2DCollider.getOffset();
-                Vector2f origin = new Vector2f(box2DCollider.getOrigin());
-                shape.setAsBox(halfSize.x, halfSize.y, new Vec2(origin.x, origin.y), 0);
-
-                Vec2 pos = bodyDef.position;
-                float xPos = pos.x + offset.x;
-                float yPos = pos.y + offset.y;
-                bodyDef.position.set(xPos, yPos);
-            }
-
             Body body = world.createBody(bodyDef);
             rigidBody2D.setRawBody(body);
-            body.createFixture(shape, rigidBody2D.getMass());
+
+            Box2DCollider box2DCollider;
+            // TODO: fix this
+            // CircleCollider circleCollider;
+            // if ((circleCollider = gameObject.getComponent(CircleCollider.class)) != null) {
+            //     shape.setRadius(circleCollider.getRadius());
+            // }
+
+            if ((box2DCollider = gameObject.getComponent(Box2DCollider.class)) != null) {
+                addBox2DCollider(rigidBody2D, box2DCollider);
+            }
         }
     }
 
@@ -80,6 +73,23 @@ public class Physics2D {
                 rigidBody2D.setRawBody(null);
             }
         }
+    }
+
+    public void addBox2DCollider(RigidBody2D rigidBody2D, Box2DCollider box2DCollider) {
+        Body body = rigidBody2D.getRawBody();
+        Objects.requireNonNull(body, "Raw body must not be null");
+
+        PolygonShape shape = new PolygonShape();
+        Vector2f halfSize = new Vector2f(box2DCollider.getHalfSize()).mul(0.5f);
+        Vector2f offset = box2DCollider.getOffset();
+        shape.setAsBox(halfSize.x, halfSize.y, new Vec2(offset.x, offset.y), 0);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1.0f;
+        fixtureDef.userData = box2DCollider.gameObject;
+
+        body.createFixture(fixtureDef);
     }
 
 }
