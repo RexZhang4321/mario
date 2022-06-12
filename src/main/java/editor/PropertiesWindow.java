@@ -1,7 +1,9 @@
 package editor;
 
+import components.SpriteRenderer;
 import imgui.ImGui;
 import jade.GameObject;
+import org.joml.Vector4f;
 import physics2d.components.Box2DCollider;
 import physics2d.components.CircleCollider;
 import physics2d.components.RigidBody2D;
@@ -13,6 +15,7 @@ import java.util.List;
 public class PropertiesWindow {
 
     private List<GameObject> activeGameObjects = new ArrayList<>();
+    private List<Vector4f> activeGameObjectOriginalColor = new ArrayList<>();
     private GameObject activeGameObject = null;
     private PickingTexture pickingTexture;
 
@@ -75,12 +78,29 @@ public class PropertiesWindow {
 
     public void addActiveGameObject(GameObject gameObject) {
         if (gameObject != null) {
+            SpriteRenderer spriteRenderer = gameObject.getComponent(SpriteRenderer.class);
+            if (spriteRenderer != null) {
+                activeGameObjectOriginalColor.add(new Vector4f(spriteRenderer.getColor()));
+                spriteRenderer.setColor(new Vector4f(0.8f, 0.8f, 0.0f, 0.8f));
+            } else {
+                activeGameObjectOriginalColor.add(new Vector4f());
+            }
             activeGameObjects.add(gameObject);
         }
     }
 
     public void clearSelected() {
+        if (activeGameObjectOriginalColor.size() > 0) {
+            int i = 0;
+            for (GameObject gameObject : activeGameObjects) {
+                SpriteRenderer spriteRenderer = gameObject.getComponent(SpriteRenderer.class);
+                if (spriteRenderer != null) {
+                    spriteRenderer.setColor(activeGameObjectOriginalColor.get(i));
+                }
+            }
+        }
         activeGameObjects.clear();
+        activeGameObjectOriginalColor.clear();
         activeGameObject = null;
     }
 
