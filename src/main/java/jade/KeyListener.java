@@ -2,6 +2,8 @@ package jade;
 
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Arrays;
+
 public class KeyListener {
 
     private static KeyListener instance;
@@ -10,6 +12,10 @@ public class KeyListener {
 
     private KeyListener() {
 
+    }
+
+    public static void endFrame() {
+        Arrays.fill(getInstance().keyBeginPress, false);
     }
 
     public static KeyListener getInstance() {
@@ -37,10 +43,6 @@ public class KeyListener {
     }
 
     public static boolean keyBeginPress(int keyCode) {
-        boolean result = getInstance().keyBeginPress[keyCode];
-        if (result) {
-            getInstance().keyBeginPress[keyCode] = false;
-        }
-        return result;
+        return getInstance().keyBeginPress[keyCode];
     }
 }

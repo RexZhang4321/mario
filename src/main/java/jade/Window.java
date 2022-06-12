@@ -241,6 +241,7 @@ public class Window implements Observer {
             imGuiLayer.update(dt, currentScene);
 
             MouseListener.endFrame();
+            KeyListener.endFrame();
 
             GLFW.glfwSwapBuffers(glfwWindow);
 
