@@ -11,6 +11,7 @@ import org.lwjgl.openal.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.system.MemoryUtil;
+import physics2d.Physics2D;
 import renderer.*;
 import scenes.LevelEditorSceneInitializer;
 import scenes.Scene;
@@ -119,6 +120,10 @@ public class Window implements Observer {
         } else if (event.eventType == EventType.SaveLevel) {
             currentScene.save();
         }
+    }
+
+    public static Physics2D getPhysics() {
+        return currentScene.getPhysics2D();
     }
 
     private void init() {

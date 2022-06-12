@@ -177,4 +177,8 @@ public class Scene {
     public GameObject getGameObject(int gameObjectId) {
         return gameObjects.stream().filter(it -> it.getUid() == gameObjectId).findFirst().orElse(null);
     }
+
+    public Physics2D getPhysics2D() {
+        return physics2D;
+    }
 }
