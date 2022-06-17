@@ -53,10 +53,8 @@ public class MouseControls extends Component {
         Scene currentScene = Window.getScene();
 
         if (holdingObject != null) {
-            holdingObject.transform.position.x = MouseListener.getWorldX();
-            holdingObject.transform.position.y = MouseListener.getWorldY();
-            holdingObject.transform.position.x = ((int) Math.floor(holdingObject.transform.position.x / Settings.GRID_WIDTH) * Settings.GRID_WIDTH) + Settings.GRID_WIDTH / 2.0f;
-            holdingObject.transform.position.y = ((int) Math.floor(holdingObject.transform.position.y / Settings.GRID_HEIGHT) * Settings.GRID_HEIGHT) + Settings.GRID_HEIGHT / 2.0f;
+            holdingObject.transform.position.x = ((int) Math.floor(MouseListener.getWorldX() / Settings.GRID_WIDTH) * Settings.GRID_WIDTH) + Settings.GRID_WIDTH / 2.0f;
+            holdingObject.transform.position.y = ((int) Math.floor(MouseListener.getWorldY() / Settings.GRID_HEIGHT) * Settings.GRID_HEIGHT) + Settings.GRID_HEIGHT / 2.0f;
 
             if (MouseListener.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
                 float halfWidth = Settings.GRID_WIDTH / 2.0f;

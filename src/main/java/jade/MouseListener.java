@@ -151,8 +151,8 @@ public class MouseListener {
         float currentX = getX() - getInstance().gameViewportPos.x;
         currentX = (currentX / getInstance().gameViewportSize.x) * 2.0f - 1.0f;
 
-        float currentY = getInstance().gameViewportSize.y - getY() + getInstance().gameViewportPos.y;
-        currentY = (currentY / getInstance().gameViewportSize.y) * 2.0f - 1.0f;
+        float currentY = getY() - getInstance().gameViewportPos.y;
+        currentY = (1.0f - currentY / getInstance().gameViewportSize.y) * 2.0f - 1.0f;
 
         Vector4f tmp = new Vector4f(currentX, currentY, 0, 1);
 
@@ -168,8 +168,8 @@ public class MouseListener {
         float currentX = getX() - getInstance().gameViewportPos.x;
         currentX = (currentX / getInstance().gameViewportSize.x) * 1920.0f;
 
-        float currentY = getInstance().gameViewportSize.y - getY() + getInstance().gameViewportPos.y;
-        currentY = (currentY / getInstance().gameViewportSize.y) * 1080.0f;
+        float currentY = getY() - getInstance().gameViewportPos.y;
+        currentY = (1.0f - currentY / getInstance().gameViewportSize.y) * 1080.0f;
 
         return new Vector2f(currentX, currentY);
     }

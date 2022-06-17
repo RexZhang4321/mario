@@ -33,11 +33,9 @@ public class GameViewWindow {
 
         ImVec2 windowSize = getLargestSizeForViewport();
         ImVec2 windowPos = getCenteredPositionForViewport(windowSize);
-
         ImGui.setCursorPos(windowPos.x, windowPos.y);
 
         ImVec2 topLeft = ImGui.getCursorScreenPos();
-
         leftX = topLeft.x;
         bottomY = topLeft.y;
         rightX = topLeft.x + windowSize.x;
@@ -46,7 +44,7 @@ public class GameViewWindow {
         int textureId = Window.getInstance().getFramebuffer().getTextureId();
         ImGui.image(textureId, windowSize.x, windowSize.y, 0, 1, 1, 0);
 
-        MouseListener.getInstance().setGameViewportPos(new Vector2f(topLeft.x, topLeft.y));
+        MouseListener.getInstance().setGameViewportPos(new Vector2f(topLeft.x, topLeft.y - 24));
         MouseListener.getInstance().setGameViewportSize(new Vector2f(windowSize.x, windowSize.y));
 
         ImGui.end();
