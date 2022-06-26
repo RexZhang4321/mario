@@ -1,6 +1,8 @@
 package jade;
 
 import components.*;
+import org.joml.Vector2f;
+import physics2d.components.Box2DCollider;
 import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
 import physics2d.enums.BodyType;
@@ -217,19 +219,56 @@ public class Prefabs {
         SpriteSheet itemSpriteSheet = AssetPool.getSpriteSheet(itemSpriteSheetPath);
         GameObject questionBlock = generateSpriteObject(itemSpriteSheet.getSprite(0), 0.25f, 0.25f);
 
-        AnimationState run = new AnimationState();
-        run.title = "Flicker";
-        float defaultFrameTime = 0.2f;
-        run.addFrame(itemSpriteSheet.getSprite(0), defaultFrameTime);
-        run.addFrame(itemSpriteSheet.getSprite(1), defaultFrameTime);
-        run.addFrame(itemSpriteSheet.getSprite(2), defaultFrameTime);
-        run.setLoop(true);
+        AnimationState flicker = new AnimationState();
+        flicker.title = "Flicker";
+        float defaultFrameTime = 0.23f;
+        flicker.addFrame(itemSpriteSheet.getSprite(0), 0.57f);
+        flicker.addFrame(itemSpriteSheet.getSprite(1), defaultFrameTime);
+        flicker.addFrame(itemSpriteSheet.getSprite(2), defaultFrameTime);
+        flicker.setLoop(true);
+
+        AnimationState inactive = new AnimationState();
+        inactive.title = "Inactive";
+        inactive.addFrame(itemSpriteSheet.getSprite(3), 0.1f);
+        inactive.setLoop(false);
 
         StateMachine stateMachine = new StateMachine();
-        stateMachine.addState(run);
-        stateMachine.setDefaultStateTitle(run.title);
+        stateMachine.addState(flicker);
+        stateMachine.addState(inactive);
+        stateMachine.setDefaultStateTitle(flicker.title);
+        stateMachine.addStateTrigger(flicker.title, inactive.title, "setInactive");
         questionBlock.addComponent(stateMachine);
+        questionBlock.addComponent(new QuestionBlock());
+
+        RigidBody2D rigidBody2D = new RigidBody2D();
+        rigidBody2D.setBodyType(BodyType.Static);
+        questionBlock.addComponent(rigidBody2D);
+        Box2DCollider box2DCollider = new Box2DCollider();
+        box2DCollider.setHalfSize(new Vector2f(0.25f, 0.25f));
+        questionBlock.addComponent(box2DCollider);
+        questionBlock.addComponent(new Ground());
         return questionBlock;
+    }
+
+    public static GameObject generateBlockCoin() {
+        SpriteSheet itemSpriteSheet = AssetPool.getSpriteSheet(itemSpriteSheetPath);
+        GameObject coin = generateSpriteObject(itemSpriteSheet.getSprite(7), 0.25f, 0.25f);
+
+        AnimationState coinFlip = new AnimationState();
+        coinFlip.title = "CoinFlip";
+        float defaultFrameTime = 0.23f;
+        coinFlip.addFrame(itemSpriteSheet.getSprite(7), 0.57f);
+        coinFlip.addFrame(itemSpriteSheet.getSprite(8), defaultFrameTime);
+        coinFlip.addFrame(itemSpriteSheet.getSprite(9), defaultFrameTime);
+        coinFlip.setLoop(true);
+
+        StateMachine stateMachine = new StateMachine();
+        stateMachine.addState(coinFlip);
+        stateMachine.setDefaultStateTitle(coinFlip.title);
+        coin.addComponent(stateMachine);
+        coin.addComponent(new BlockCoin());
+
+        return coin;
     }
 
 }

@@ -86,7 +86,9 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                         box2DCollider.setHalfSize(new Vector2f(0.25f, 0.25f));
                         gameObject.addComponent(box2DCollider);
                         gameObject.addComponent(new Ground());
-
+                        if (i == 12) {
+                            gameObject.addComponent(new BreakableBrick());
+                        }
                         // attach this to the mouse cursor
                         levelEditorComponents.getComponent(MouseControls.class).pickUpObject(gameObject);
                     }
