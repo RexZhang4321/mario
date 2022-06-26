@@ -1,6 +1,5 @@
 package physics2d;
 
-import components.Component;
 import jade.GameObject;
 import jade.Transform;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -16,8 +15,7 @@ import physics2d.components.RigidBody2D;
 import java.util.Objects;
 
 public class Physics2D {
-    private Vec2 gravity = new Vec2(0, -10.0f);
-    private World world = new World(gravity);
+    private World world = new World(new Vec2(0, -10.0f));
 
     private float physicsTime = 0.0f;
     private float physicsTimeStep = 1.0f / 60.0f;
@@ -26,6 +24,10 @@ public class Physics2D {
 
     public Physics2D() {
         world.setContactListener(new JadeContactListener());
+    }
+
+    public Vector2f getGravity() {
+        return new Vector2f(world.getGravity().x, world.getGravity().y);
     }
 
     public void add(GameObject gameObject) {

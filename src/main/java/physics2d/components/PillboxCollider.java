@@ -82,13 +82,13 @@ public class PillboxCollider extends Component {
     }
 
     private void recalculateColliders() {
-        float circleRadius = width / 4.0f;
-        float boxHeight = height - 2 * circleRadius;
+        float circleRadius = width / 2.0f;
+        float boxHeight = height - circleRadius;
         topCircle.setRadius(circleRadius);
-        topCircle.setOffset(new Vector2f(offset).add(0, boxHeight / 4.0f));
+        topCircle.setOffset(new Vector2f(offset).add(0, (height - circleRadius * 2.0f) / 2.0f));
         bottomCircle.setRadius(circleRadius);
-        bottomCircle.setOffset(new Vector2f(offset).sub(0, boxHeight / 4.0f));
-        box.setHalfSize(new Vector2f(width / 2.0f, boxHeight / 2.0f));
+        bottomCircle.setOffset(new Vector2f(offset).sub(0, (height - circleRadius * 2.0f) / 2.0f));
+        box.setHalfSize(new Vector2f(width - 0.01f, boxHeight));
         box.setOffset(offset);
     }
 }

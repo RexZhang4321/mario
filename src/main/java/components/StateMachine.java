@@ -93,15 +93,15 @@ public class StateMachine extends Component {
     }
 
     public void trigger(String trigger) {
-        Optional<AnimationState> maybeAnimationState = stateTransfers.keySet()
+        Optional<AnimationState> maybeAnimationState = stateTransfers.entrySet()
                 .stream()
-                .filter(stateTrigger -> stateTrigger.trigger.equals(trigger))
+                .filter(entry -> entry.getKey().trigger.equals(trigger) && entry.getKey().stateTitle.equals(currentState.title))
                 .findFirst()
-                .map(stateMap::get);
+                .map(entry -> stateMap.get(entry.getValue()));
         if (maybeAnimationState.isPresent()) {
             currentState = maybeAnimationState.get();
         } else {
-            System.out.println("Unable to find trigger: " + trigger);
+            System.out.println("Unable to find trigger: " + trigger + ". Current state: " + currentState.title);
         }
     }
 

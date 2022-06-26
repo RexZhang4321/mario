@@ -131,7 +131,7 @@ public class Prefabs {
         stateMachine.addState(fireSwitchDirection);
         stateMachine.addState(fireJump);
 
-        stateMachine.setDefaultStateTitle(run.title);
+        stateMachine.setDefaultStateTitle(idle.title);
         stateMachine.addStateTrigger(run.title, switchDirection.title, "switchDirection");
         stateMachine.addStateTrigger(run.title, idle.title, "stopRunning");
         stateMachine.addStateTrigger(run.title, jump.title, "jump");
