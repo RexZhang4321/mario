@@ -6,14 +6,16 @@ import imgui.ImGui;
 import imgui.ImVec2;
 import jade.*;
 import org.joml.Vector2f;
+import physics2d.components.Box2DCollider;
+import physics2d.components.RigidBody2D;
+import physics2d.enums.BodyType;
 import util.AssetPool;
 import util.Settings;
 
 import java.io.File;
 import java.util.Collection;
 
-import static jade.Prefabs.itemSpriteSheetPath;
-import static jade.Prefabs.marioSpriteSheetPath;
+import static jade.Prefabs.*;
 
 public class LevelEditorSceneInitializer extends SceneInitializer {
 
@@ -60,6 +62,13 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
 
                 float windowX2 = windowPost.x + windowSize.x;
                 for (int i = 0; i < objectSpriteSheet.getSize(); i++) {
+                    // skip sprites that do not need box colliders
+                    if (i == 34) {
+                        continue;
+                    }
+                    if (i >= 38 && i < 61) {
+                        continue;
+                    }
                     Sprite sprite = objectSpriteSheet.getSprite(i);
                     float spriteWidth = sprite.getWidth() * 2;
                     float spriteHeight = sprite.getHeight() * 2;
@@ -69,6 +78,15 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                     ImGui.pushID(i);
                     if (ImGui.imageButton(texId, spriteWidth, spriteHeight, texCoords[2].x, texCoords[0].y, texCoords[0].x, texCoords[2].y)) {
                         GameObject gameObject = Prefabs.generateSpriteObject(sprite, Settings.GRID_WIDTH, Settings.GRID_HEIGHT);
+
+                        RigidBody2D rigidBody2D = new RigidBody2D();
+                        rigidBody2D.setBodyType(BodyType.Static);
+                        gameObject.addComponent(rigidBody2D);
+                        Box2DCollider box2DCollider = new Box2DCollider();
+                        box2DCollider.setHalfSize(new Vector2f(0.25f, 0.25f));
+                        gameObject.addComponent(box2DCollider);
+                        gameObject.addComponent(new Ground());
+
                         // attach this to the mouse cursor
                         levelEditorComponents.getComponent(MouseControls.class).pickUpObject(gameObject);
                     }
@@ -144,6 +162,16 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
         AssetPool.addSpriteSheet(gizmoPath, new SpriteSheet(AssetPool.getTexture(gizmoPath), 24, 48, 3, 0));
         AssetPool.addSpriteSheet(marioSpriteSheetPath, new SpriteSheet(AssetPool.getTexture(marioSpriteSheetPath), 16, 16, 26, 0));
         AssetPool.addSpriteSheet(itemSpriteSheetPath, new SpriteSheet(AssetPool.getTexture(itemSpriteSheetPath), 16, 16, 43, 0));
+        AssetPool.addSpriteSheet(turtleSpriteSheetPath,
+                new SpriteSheet(AssetPool.getTexture(turtleSpriteSheetPath),
+                        16, 24, 4, 0));
+        AssetPool.addSpriteSheet(bigMarioSpriteSheetPath,
+                new SpriteSheet(AssetPool.getTexture(bigMarioSpriteSheetPath),
+                        16, 32, 42, 0));
+        AssetPool.addSpriteSheet(pipeSpriteSheetPath,
+                new SpriteSheet(AssetPool.getTexture(pipeSpriteSheetPath),
+                        32, 32, 4, 0));
+
         AssetPool.getTexture("assets/images/blendImage2.png");
 
         File soundDir = new File("assets/sounds/");

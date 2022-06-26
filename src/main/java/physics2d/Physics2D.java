@@ -1,5 +1,6 @@
 package physics2d;
 
+import components.Component;
 import jade.GameObject;
 import jade.Transform;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -9,6 +10,7 @@ import org.jbox2d.dynamics.*;
 import org.joml.Vector2f;
 import physics2d.components.Box2DCollider;
 import physics2d.components.CircleCollider;
+import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
 
 import java.util.Objects;
@@ -21,6 +23,10 @@ public class Physics2D {
     private float physicsTimeStep = 1.0f / 60.0f;
     private int velocityIterations = 8;
     private int positionIterations = 3;
+
+    public Physics2D() {
+        world.setContactListener(new JadeContactListener());
+    }
 
     public void add(GameObject gameObject) {
         RigidBody2D rigidBody2D = gameObject.getComponent(RigidBody2D.class);
@@ -50,12 +56,18 @@ public class Physics2D {
 
             Box2DCollider box2DCollider;
             CircleCollider circleCollider;
+            PillboxCollider pillboxCollider;
+
             if ((circleCollider = gameObject.getComponent(CircleCollider.class)) != null) {
                 addCircleCollider(rigidBody2D, circleCollider);
             }
 
             if ((box2DCollider = gameObject.getComponent(Box2DCollider.class)) != null) {
                 addBox2DCollider(rigidBody2D, box2DCollider);
+            }
+
+            if ((pillboxCollider = gameObject.getComponent(PillboxCollider.class)) != null) {
+                addPillboxCollider(rigidBody2D, pillboxCollider);
             }
         }
     }
@@ -171,6 +183,34 @@ public class Physics2D {
         RaycastInfo callback = new RaycastInfo(requestingObject);
         world.raycast(callback, new Vec2(point1.x, point1.y), new Vec2(point2.x, point2.y));
         return callback;
+    }
+
+    public boolean isLocked() {
+        return world.isLocked();
+    }
+
+    public void addPillboxCollider(RigidBody2D rigidBody2D, PillboxCollider pillboxCollider) {
+        Body body = rigidBody2D.getRawBody();
+        Objects.requireNonNull(body, "Raw body must not be null");
+
+        addBox2DCollider(rigidBody2D, pillboxCollider.getBox());
+        addCircleCollider(rigidBody2D, pillboxCollider.getTopCircle());
+        addCircleCollider(rigidBody2D, pillboxCollider.getBottomCircle());
+    }
+
+    public void resetPillboxCollider(RigidBody2D rigidBody2D, PillboxCollider pillboxCollider) {
+        Body body = rigidBody2D.getRawBody();
+        if (body == null) {
+            return;
+        }
+
+        int size = fixtureListSize(body);
+        for (int i = 0; i < size; i++) {
+            body.destroyFixture(body.getFixtureList());
+        }
+
+        addPillboxCollider(rigidBody2D, pillboxCollider);
+        body.resetMassData();
     }
 
     private int fixtureListSize(Body body) {

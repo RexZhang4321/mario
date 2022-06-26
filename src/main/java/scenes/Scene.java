@@ -30,6 +30,7 @@ public class Scene {
             .setPrettyPrinting()
             .registerTypeAdapter(Component.class, new ComponentSerDeser())
             .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
+            .enableComplexMapKeySerialization()
             .create();
 
     private boolean isRunning;

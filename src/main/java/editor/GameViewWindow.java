@@ -44,6 +44,7 @@ public class GameViewWindow {
         int textureId = Window.getInstance().getFramebuffer().getTextureId();
         ImGui.image(textureId, windowSize.x, windowSize.y, 0, 1, 1, 0);
 
+        // TODO: after resizing the window, the mouse position is completely off
         MouseListener.getInstance().setGameViewportPos(new Vector2f(topLeft.x, topLeft.y - 24));
         MouseListener.getInstance().setGameViewportSize(new Vector2f(windowSize.x, windowSize.y));
 
