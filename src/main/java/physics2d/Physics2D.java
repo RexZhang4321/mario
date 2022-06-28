@@ -82,6 +82,7 @@ public class Physics2D {
         }
     }
 
+    // TODO: this is broken
     public void setIsSensor(RigidBody2D rigidBody2D) {
         Body body = rigidBody2D.getRawBody();
         if (body == null) {

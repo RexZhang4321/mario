@@ -25,6 +25,9 @@ public class Scene {
     private Renderer renderer;
     private Camera camera;
     private List<GameObject> gameObjects;
+    // game objects that are going to be added but are not added yet
+    // because the physics engine will not allow us to add the game object while it's still computing
+    private List<GameObject> pendingObjects;
 
     private Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -44,6 +47,7 @@ public class Scene {
         this.physics2D = new Physics2D();
         this.renderer = new Renderer();
         this.gameObjects = new ArrayList<>();
+        this.pendingObjects = new ArrayList<>();
         this.isRunning = false;
     }
 
@@ -77,10 +81,7 @@ public class Scene {
         if (!isRunning) {
             gameObjects.add(gameObject);
         } else {
-            gameObjects.add(gameObject);
-            gameObject.start();
-            renderer.add(gameObject);
-            physics2D.add(gameObject);
+            pendingObjects.add(gameObject);
         }
     }
 
@@ -97,6 +98,14 @@ public class Scene {
                 i--;
             }
         }
+
+        for (GameObject pending : pendingObjects) {
+            gameObjects.add(pending);
+            pending.start();
+            renderer.add(pending);
+            physics2D.add(pending);
+        }
+        pendingObjects.clear();
     }
 
     public void update(float dt) {
@@ -113,6 +122,14 @@ public class Scene {
                 i--;
             }
         }
+
+        for (GameObject pending : pendingObjects) {
+            gameObjects.add(pending);
+            pending.start();
+            renderer.add(pending);
+            physics2D.add(pending);
+        }
+        pendingObjects.clear();
     }
 
     public void render() {

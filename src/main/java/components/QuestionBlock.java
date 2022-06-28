@@ -36,10 +36,28 @@ public class QuestionBlock extends Block {
     }
 
     private void doPowerup(PlayerController playerController) {
-
+        if (playerController.isSmall()) {
+            spawnMushroom();
+        } else {
+            spawnFlower();
+        }
     }
 
     private void doInvincibility(PlayerController playerController) {
 
+    }
+
+    private void spawnMushroom() {
+        GameObject mushroom = Prefabs.generateMushroom();
+        mushroom.transform.position.set(gameObject.transform.position);
+        mushroom.transform.position.y += 0.25f;
+        Window.getScene().addGameObjectToScene(mushroom);
+    }
+
+    private void spawnFlower() {
+        GameObject mushroom = Prefabs.generateFlower();
+        mushroom.transform.position.set(gameObject.transform.position);
+        mushroom.transform.position.y += 0.25f;
+        Window.getScene().addGameObjectToScene(mushroom);
     }
 }

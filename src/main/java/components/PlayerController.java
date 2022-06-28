@@ -8,6 +8,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import physics2d.RaycastInfo;
+import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
 import renderer.DebugDraw;
 import util.AssetPool;
@@ -183,5 +184,25 @@ public class PlayerController extends Component {
 
     public boolean isSmall() {
         return playerState == PlayerState.Small;
+    }
+
+    public void powerup() {
+        if (playerState == PlayerState.Small) {
+            playerState = PlayerState.Big;
+            AssetPool.getSound("assets/sounds/powerup.ogg").play();
+            gameObject.transform.scale.y = 0.42f;
+            PillboxCollider pillboxCollider = gameObject.getComponent(PillboxCollider.class);
+            if (pillboxCollider != null) {
+                jumpBoost *= bigJumpBoostFactor;
+                walkSpeed *= bigJumpBoostFactor;
+                pillboxCollider.setHeight(0.42f);
+            }
+        } else if (playerState == PlayerState.Big) {
+            // TODO: FIX the situation where the player hit a mushroom in the big state, currently the player will still powerup
+            playerState = PlayerState.Fire;
+            AssetPool.getSound("assets/sounds/powerup.ogg").play();
+        }
+
+        stateMachine.trigger("powerup");
     }
 }
