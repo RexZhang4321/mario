@@ -127,9 +127,14 @@ public class RenderBatch implements Comparable<RenderBatch> {
         for (int i = 0; i < numSprites; i++) {
             SpriteRenderer spriteRenderer = sprites[i];
             if (spriteRenderer.isDirty()) {
-                loadVertexProperties(i);
-                spriteRenderer.setClean();
-                reBufferData = true;
+                if (!hasTexture(spriteRenderer.getTexture())) {
+                    renderer.destroyGameObject(spriteRenderer.gameObject);
+                    renderer.add(spriteRenderer.gameObject);
+                } else {
+                    loadVertexProperties(i);
+                    spriteRenderer.setClean();
+                    reBufferData = true;
+                }
             }
 
             // TODO: find a cleaner way to render z-index change
