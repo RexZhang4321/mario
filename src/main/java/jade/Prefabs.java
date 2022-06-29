@@ -308,4 +308,38 @@ public class Prefabs {
         return flower;
     }
 
+    public static GameObject generateGoomba() {
+        SpriteSheet itemSpriteSheet = AssetPool.getSpriteSheet(marioSpriteSheetPath);
+        GameObject goomba = generateSpriteObject(itemSpriteSheet.getSprite(14), 0.25f, 0.25f);
+
+        AnimationState walk = new AnimationState();
+        walk.title = "Walk";
+        float defaultFrameTime = 0.23f;
+        walk.addFrame(itemSpriteSheet.getSprite(14), defaultFrameTime);
+        walk.addFrame(itemSpriteSheet.getSprite(15), defaultFrameTime);
+        walk.setLoop(true);
+
+        AnimationState squashed = new AnimationState();
+        squashed.title = "Squashed";
+        squashed.addFrame(itemSpriteSheet.getSprite(16), 0.1f);
+        squashed.setLoop(false);
+
+        StateMachine stateMachine = new StateMachine();
+        stateMachine.addState(walk);
+        stateMachine.addState(squashed);
+        stateMachine.setDefaultStateTitle(walk.title);
+        stateMachine.addStateTrigger(walk.title, squashed.title, "squashMe");
+        goomba.addComponent(stateMachine);
+
+        RigidBody2D rigidBody2D = new RigidBody2D();
+        rigidBody2D.setBodyType(BodyType.Dynamic);
+        rigidBody2D.setMass(0.1f);
+        rigidBody2D.setFixedRotation(true);
+        goomba.addComponent(rigidBody2D);
+        CircleCollider circleCollider = new CircleCollider();
+        circleCollider.setRadius(0.12f);
+        goomba.addComponent(circleCollider);
+        goomba.addComponent(new GoombaAI());
+        return goomba;
+    }
 }
