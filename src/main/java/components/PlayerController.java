@@ -6,11 +6,15 @@ import jade.Window;
 import org.jbox2d.dynamics.contacts.Contact;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
+import physics2d.Physics2D;
 import physics2d.RaycastInfo;
 import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
+import physics2d.enums.BodyType;
 import renderer.DebugDraw;
+import scenes.LevelEditorSceneInitializer;
 import util.AssetPool;
 
 public class PlayerController extends Component {
@@ -48,15 +52,63 @@ public class PlayerController extends Component {
     private transient boolean isDead = false;
     private transient int enemyBounce = 0;
 
+    private transient float hurtInvincibililityTimeLeft = 0;
+
+    private transient float hurtInvincibilityTime = 1.4f;
+
+    private transient float deadMaxHeight = 0;
+    private transient float deadMinHeight = 0;
+    private transient boolean deadGoingUp = true;
+    private transient float blinkTime = 0;
+
+    private transient SpriteRenderer spriteRenderer;
+
     @Override
     public void start() {
         rigidBody2D = gameObject.getComponent(RigidBody2D.class);
         stateMachine = gameObject.getComponent(StateMachine.class);
         rigidBody2D.setGravityScale(0.0f);
+        spriteRenderer = gameObject.getComponent(SpriteRenderer.class);
     }
 
     @Override
     public void update(float dt) {
+        if (isDead) {
+            if (gameObject.transform.position.y < deadMaxHeight && deadGoingUp) {
+                gameObject.transform.position.y += dt * walkSpeed / 2.0f;
+            } else if (gameObject.transform.position.y >= deadMaxHeight && deadGoingUp) {
+                deadGoingUp = false;
+            } else if (!deadGoingUp && gameObject.transform.position.y > deadMinHeight) {
+                rigidBody2D.setBodyType(BodyType.Kinematic);
+                acceleration.y = Window.getPhysics().getGravity().y * 0.7f;
+                velocity.y += acceleration.y * dt;
+                velocity.y = Math.max(Math.min(velocity.y, terminalVelocity.y), -terminalVelocity.y);
+                rigidBody2D.setVelocity(velocity);
+                rigidBody2D.setAngularVelocity(0);
+            } else if (!deadGoingUp && gameObject.transform.position.y <= deadMinHeight) {
+                Window.changeScene(new LevelEditorSceneInitializer());
+            }
+            return;
+        }
+
+        if (hurtInvincibililityTimeLeft > 0) {
+            hurtInvincibililityTimeLeft -= dt;
+            blinkTime -= dt;
+
+            if (blinkTime <= 0) {
+                blinkTime = 0.2f;
+                if (spriteRenderer.getColor().w == 1) {
+                    spriteRenderer.setColor(new Vector4f(1, 1, 1, 0));
+                } else  {
+                    spriteRenderer.setColor(new Vector4f(1, 1, 1, 1));
+                }
+            } else {
+                if (spriteRenderer.getColor().w == 0) {
+                    spriteRenderer.setColor(new Vector4f(1, 1, 1, 1));
+                }
+            }
+        }
+
         if (KeyListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_D)) {
             gameObject.transform.scale.x = playerWidth;
             acceleration.x = walkSpeed;
@@ -108,7 +160,8 @@ public class PlayerController extends Component {
             }
             groundDebounce = 0;
         } else if (enemyBounce > 0) {
-            // TODO
+            enemyBounce--;
+            velocity.y = (enemyBounce / 2.2f) * jumpBoost;
         } else if (!onGround) {
             // if in the middle of the jump
             if (jumpTime > 0) {
@@ -140,28 +193,10 @@ public class PlayerController extends Component {
         }
     }
 
-    // shoot a ray cast of the player to the ground to see if the player hit anything to determine whether the player is on the ground
     public void checkOnGround() {
-        // check if the left side of the player is on the ground
-        Vector2f raycastBegin = new Vector2f(gameObject.transform.position);
-        float innerPlayerWidth = playerWidth * 0.6f;
-        raycastBegin.sub(innerPlayerWidth / 2.0f, 0.0f);
-
-        // when the player is big, shoot the ray cast a bit lower
+        float innerPlayerWidth = this.playerWidth * 0.6f;
         float yVal = playerState == PlayerState.Small ? -0.14f : -0.24f;
-        Vector2f raycastEnd = new Vector2f(raycastBegin).add(0.0f, yVal);
-        RaycastInfo info = Window.getPhysics().raycast(gameObject, raycastBegin, raycastEnd);
-
-        // check if the right side of the player is on the ground
-        Vector2f raycast2Begin = new Vector2f(raycastBegin).add(innerPlayerWidth, 0f);
-        Vector2f raycast2End = new Vector2f(raycastEnd).add(innerPlayerWidth, 0f);
-        RaycastInfo info2 = Window.getPhysics().raycast(gameObject, raycast2Begin, raycast2End);
-
-        onGround = (info.isHit && info.hitObject != null && info.hitObject.getComponent(Ground.class) != null)
-                || (info2.isHit && info2.hitObject != null && info2.hitObject.getComponent(Ground.class) != null);
-
-        DebugDraw.addLine2D(raycastBegin, raycastEnd, new Vector3f(1f, 0f, 0f));
-        DebugDraw.addLine2D(raycast2Begin, raycast2End, new Vector3f(1f, 0f, 0f));
+        onGround = Physics2D.checkOnGround(gameObject, innerPlayerWidth, yVal);
     }
 
     @Override
@@ -204,5 +239,53 @@ public class PlayerController extends Component {
         }
 
         stateMachine.trigger("powerup");
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    public boolean isHurtInvincible() {
+        return hurtInvincibililityTimeLeft > 0;
+    }
+
+    public boolean isInvincible() {
+        return playerState == PlayerState.Invincible || isHurtInvincible();
+    }
+
+    public void enemyBounce() {
+        enemyBounce = 8;
+    }
+
+    public void die() {
+        stateMachine.trigger("die");
+        if (playerState == PlayerState.Small) {
+            velocity.zero();
+            acceleration.zero();
+            rigidBody2D.setVelocity(new Vector2f());
+            isDead = true;
+            rigidBody2D.setIsSensor();
+            AssetPool.getSound("assets/sounds/mario_die.ogg").play();
+            deadMaxHeight = gameObject.transform.position.y + 0.3f;
+            rigidBody2D.setBodyType(BodyType.Static);
+            if (gameObject.transform.position.y > 0) {
+                deadMinHeight = -0.25f;
+            }
+        } else if (playerState == PlayerState.Big) {
+            playerState = PlayerState.Small;
+            gameObject.transform.scale.y = 0.25f;
+            PillboxCollider pillboxCollider = gameObject.getComponent(PillboxCollider.class);
+            if (pillboxCollider != null) {
+                jumpBoost /= bigJumpBoostFactor;
+                walkSpeed /= bigJumpBoostFactor;
+                pillboxCollider.setHeight(0.25f);
+            }
+            hurtInvincibililityTimeLeft = hurtInvincibilityTime;
+            AssetPool.getSound("assets/sounds/pipe.ogg").play();
+        } else if (playerState == PlayerState.Fire) {
+            playerState = PlayerState.Big;
+            hurtInvincibililityTimeLeft = hurtInvincibilityTime;
+            AssetPool.getSound("assets/sounds/pipe.ogg").play();
+        }
     }
 }

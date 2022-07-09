@@ -1,16 +1,21 @@
 package physics2d;
 
+import components.Ground;
+import components.PlayerController;
 import jade.GameObject;
 import jade.Transform;
+import jade.Window;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import physics2d.components.Box2DCollider;
 import physics2d.components.CircleCollider;
 import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
+import renderer.DebugDraw;
 
 import java.util.Objects;
 
@@ -190,6 +195,27 @@ public class Physics2D {
 
     public boolean isLocked() {
         return world.isLocked();
+    }
+
+    // shoot a ray cast of the player to the ground to see if the player hit anything to determine whether the player is on the ground
+    public static boolean checkOnGround(GameObject gameObject, float innerPlayerWidth, float height) {
+        // check if the left side of the player is on the ground
+        Vector2f raycastBegin = new Vector2f(gameObject.transform.position);
+        raycastBegin.sub(innerPlayerWidth / 2.0f, 0.0f);
+
+        Vector2f raycastEnd = new Vector2f(raycastBegin).add(0.0f, height);
+        RaycastInfo info = Window.getPhysics().raycast(gameObject, raycastBegin, raycastEnd);
+
+        // check if the right side of the player is on the ground
+        Vector2f raycast2Begin = new Vector2f(raycastBegin).add(innerPlayerWidth, 0f);
+        Vector2f raycast2End = new Vector2f(raycastEnd).add(innerPlayerWidth, 0f);
+        RaycastInfo info2 = Window.getPhysics().raycast(gameObject, raycast2Begin, raycast2End);
+
+        DebugDraw.addLine2D(raycastBegin, raycastEnd, new Vector3f(1f, 0f, 0f));
+        DebugDraw.addLine2D(raycast2Begin, raycast2End, new Vector3f(1f, 0f, 0f));
+
+        return  (info.isHit && info.hitObject != null && info.hitObject.getComponent(Ground.class) != null)
+                || (info2.isHit && info2.hitObject != null && info2.hitObject.getComponent(Ground.class) != null);
     }
 
     public void addPillboxCollider(RigidBody2D rigidBody2D, PillboxCollider pillboxCollider) {
