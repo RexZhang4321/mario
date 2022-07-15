@@ -196,6 +196,10 @@ public class Scene {
         return gameObjects.stream().filter(it -> it.getUid() == gameObjectId).findFirst().orElse(null);
     }
 
+    public GameObject getGameObjectByName(String gameObjectName) {
+        return gameObjects.stream().filter(it -> it.getName().equals(gameObjectName)).findFirst().orElse(null);
+    }
+
     public Physics2D getPhysics2D() {
         return physics2D;
     }

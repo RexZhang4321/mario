@@ -288,4 +288,9 @@ public class PlayerController extends Component {
             AssetPool.getSound("assets/sounds/pipe.ogg").play();
         }
     }
+
+    public void setPosition(Vector2f position) {
+        gameObject.transform.position.set(position);
+        rigidBody2D.setPosition(position);
+    }
 }

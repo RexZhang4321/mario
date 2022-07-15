@@ -194,6 +194,24 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                 }
                 ImGui.popID();
 
+                for (int i = 0; i < 4; i++) {
+                    ImGui.sameLine();
+                    SpriteSheet pipes = AssetPool.getSpriteSheet(pipeSpriteSheetPath);
+                    Sprite pipeSprite = pipes.getSprite(i);
+                    float pipeSpriteWidth = pipeSprite.getWidth();
+                    float pipeSpriteHeight = pipeSprite.getHeight();
+                    int pipeTexId = pipeSprite.getTexId();
+                    Vector2f[] pipeTexCoords = pipeSprite.getTexCoords();
+
+                    ImGui.pushID(uid++);
+                    if (ImGui.imageButton(pipeTexId, pipeSpriteWidth, pipeSpriteHeight, pipeTexCoords[2].x, pipeTexCoords[0].y, pipeTexCoords[0].x, pipeTexCoords[2].y)) {
+                        GameObject gameObject = Prefabs.generatePipe(i);
+                        // attach this to the mouse cursor
+                        levelEditorComponents.getComponent(MouseControls.class).pickUpObject(gameObject);
+                    }
+                    ImGui.popID();
+                }
+
                 ImGui.endTabItem();
             }
 

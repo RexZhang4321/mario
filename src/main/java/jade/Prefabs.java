@@ -342,4 +342,22 @@ public class Prefabs {
         goomba.addComponent(new GoombaAI());
         return goomba;
     }
+
+    public static GameObject generatePipe(int spriteIndex) {
+        SpriteSheet pipesSpriteSheet = AssetPool.getSpriteSheet(pipeSpriteSheetPath);
+        GameObject pipe = generateSpriteObject(pipesSpriteSheet.getSprite(spriteIndex), 0.5f, 0.5f);
+
+        RigidBody2D rigidBody2D = new RigidBody2D();
+        rigidBody2D.setBodyType(BodyType.Static);
+        rigidBody2D.setFixedRotation(true);
+        rigidBody2D.setContinuousCollision(false);
+        pipe.addComponent(rigidBody2D);
+
+        Box2DCollider box2DCollider = new Box2DCollider();
+        box2DCollider.setHalfSize(new Vector2f(0.5f, 0.5f));
+        pipe.addComponent(box2DCollider);
+        pipe.addComponent(new Ground());
+        pipe.addComponent(new Pipe(Direction.values()[spriteIndex]));
+        return pipe;
+    }
 }

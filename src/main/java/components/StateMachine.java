@@ -100,9 +100,9 @@ public class StateMachine extends Component {
                 .map(entry -> stateMap.get(entry.getValue()));
         if (maybeAnimationState.isPresent()) {
             currentState = maybeAnimationState.get();
-        } else {
+        } /* else {
             System.out.println("Unable to find trigger: " + trigger + ". Current state: " + currentState.title);
-        }
+        } */
     }
 
     private class StateTrigger {
