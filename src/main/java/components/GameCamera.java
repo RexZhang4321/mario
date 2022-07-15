@@ -29,11 +29,8 @@ public class GameCamera extends Component {
 
     @Override
     public void update(float dt) {
-//        System.out.println(String.format("GameCamera position x: %f, player transform position x: %f", gameCamera.position.x, player.transform.position.x));
-        System.out.println(String.format("GameCamera position y: %f, player transform position x: %f", gameCamera.position.y, player.transform.position.y));
         if (player != null && !player.getComponent(PlayerController.class).hasWon()) {
 //            gameCamera.position.x = Math.max(player.transform.position.x - 2.5f, highestX);
-//            System.out.println(Math.max(player.transform.position.x - 2.5f, highestX));
 //            highestX = Math.max(highestX, gameCamera.position.x);
             gameCamera.position.x = player.transform.position.x - 1.5f;
 
