@@ -5,16 +5,13 @@ import jade.KeyListener;
 import jade.Window;
 import org.jbox2d.dynamics.contacts.Contact;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import physics2d.Physics2D;
-import physics2d.RaycastInfo;
 import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
 import physics2d.enums.BodyType;
-import renderer.DebugDraw;
-import scenes.LevelEditorSceneInitializer;
+import scenes.LevelSceneInitializer;
 import util.AssetPool;
 
 public class PlayerController extends Component {
@@ -86,7 +83,7 @@ public class PlayerController extends Component {
                 rigidBody2D.setVelocity(velocity);
                 rigidBody2D.setAngularVelocity(0);
             } else if (!deadGoingUp && gameObject.transform.position.y <= deadMinHeight) {
-                Window.changeScene(new LevelEditorSceneInitializer());
+                Window.changeScene(new LevelSceneInitializer());
             }
             return;
         }
@@ -292,5 +289,9 @@ public class PlayerController extends Component {
     public void setPosition(Vector2f position) {
         gameObject.transform.position.set(position);
         rigidBody2D.setPosition(position);
+    }
+
+    public boolean hasWon() {
+        return false;
     }
 }

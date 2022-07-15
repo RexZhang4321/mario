@@ -3,6 +3,7 @@ package jade;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Camera {
 
@@ -23,6 +24,8 @@ public class Camera {
     private Matrix4f viewMatrix, inverseView;
 
     public Vector2f position;
+
+    public Vector4f clearColor = new Vector4f(1, 1, 1, 1);
 
     // unit is "fragment"
     private static final int PROJECTION_WIDTH = 6;

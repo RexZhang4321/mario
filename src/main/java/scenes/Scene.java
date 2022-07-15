@@ -200,6 +200,15 @@ public class Scene {
         return gameObjects.stream().filter(it -> it.getName().equals(gameObjectName)).findFirst().orElse(null);
     }
 
+    public <T extends Component> GameObject getGameObjectWithClass(Class<T> clazz) {
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.getComponent(clazz) != null) {
+                return gameObject;
+            }
+        }
+        return null;
+    }
+
     public Physics2D getPhysics2D() {
         return physics2D;
     }

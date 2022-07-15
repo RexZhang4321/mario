@@ -4,6 +4,7 @@ import observers.EventSystem;
 import observers.Observer;
 import observers.events.Event;
 import observers.events.EventType;
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -14,6 +15,7 @@ import org.lwjgl.system.MemoryUtil;
 import physics2d.Physics2D;
 import renderer.*;
 import scenes.LevelEditorSceneInitializer;
+import scenes.LevelSceneInitializer;
 import scenes.Scene;
 import scenes.SceneInitializer;
 import util.AssetPool;
@@ -111,7 +113,7 @@ public class Window implements Observer {
         if (event.eventType == EventType.GameEngineStartPlay) {
             this.runtimePlaying = true;
             currentScene.save();
-            Window.changeScene(new LevelEditorSceneInitializer());
+            Window.changeScene(new LevelSceneInitializer());
         } else if (event.eventType == EventType.GameEngineStopPlay) {
             this.runtimePlaying = false;
             Window.changeScene(new LevelEditorSceneInitializer());
@@ -228,7 +230,8 @@ public class Window implements Observer {
             DebugDraw.beginFrame();
 
             framebuffer.bind();
-            GL41.glClearColor(1, 1, 1, 1);
+            Vector4f clearColor = getScene().camera().clearColor;
+            GL41.glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
             GL41.glClear(GL41.GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
