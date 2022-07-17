@@ -216,13 +216,43 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                 SpriteSheet turtleSpriteSheet = AssetPool.getSpriteSheet(turtleSpriteSheetPath);
                 Sprite turtleSprite = turtleSpriteSheet.getSprite(0);
                 float turtleSpriteWidth = turtleSprite.getWidth() * 2;
-                float turtleSpriteHeight = turtleSprite.getHeight() * 2;
+                float turtleSpriteHeight = turtleSprite.getHeight() * 1.5f;
                 int turtleSpriteTexId = turtleSprite.getTexId();
                 Vector2f[] turtleSpriteTexCoords = turtleSprite.getTexCoords();
 
                 ImGui.pushID(uid++);
                 if (ImGui.imageButton(turtleSpriteTexId, turtleSpriteWidth, turtleSpriteHeight, turtleSpriteTexCoords[2].x, turtleSpriteTexCoords[0].y, turtleSpriteTexCoords[0].x, turtleSpriteTexCoords[2].y)) {
                     GameObject gameObject = Prefabs.generateTurtle();
+                    // attach this to the mouse cursor
+                    levelEditorComponents.getComponent(MouseControls.class).pickUpObject(gameObject);
+                }
+                ImGui.popID();
+
+                ImGui.sameLine();
+                Sprite flagSprite = itemSprites.getSprite(6);
+                float flagSpriteWidth = flagSprite.getWidth() * 2;
+                float flagSpriteHeight = flagSprite.getHeight() * 2;
+                int flagSpriteTexId = flagSprite.getTexId();
+                Vector2f[] flagSpriteTexCoords = flagSprite.getTexCoords();
+
+                ImGui.pushID(uid++);
+                if (ImGui.imageButton(flagSpriteTexId, flagSpriteWidth, flagSpriteHeight, flagSpriteTexCoords[2].x, flagSpriteTexCoords[0].y, flagSpriteTexCoords[0].x, flagSpriteTexCoords[2].y)) {
+                    GameObject gameObject = Prefabs.generateFlagTop();
+                    // attach this to the mouse cursor
+                    levelEditorComponents.getComponent(MouseControls.class).pickUpObject(gameObject);
+                }
+                ImGui.popID();
+
+                ImGui.sameLine();
+                Sprite flagPoleSprite = itemSprites.getSprite(33);
+                float flagPoleSpriteWidth = flagPoleSprite.getWidth() * 2;
+                float flagPoleSpriteHeight = flagPoleSprite.getHeight() * 2;
+                int flagPoleSpriteTexId = flagPoleSprite.getTexId();
+                Vector2f[] flagPoleSpriteTexCoords = flagPoleSprite.getTexCoords();
+
+                ImGui.pushID(uid++);
+                if (ImGui.imageButton(flagPoleSpriteTexId, flagPoleSpriteWidth, flagPoleSpriteHeight, flagPoleSpriteTexCoords[2].x, flagPoleSpriteTexCoords[0].y, flagPoleSpriteTexCoords[0].x, flagPoleSpriteTexCoords[2].y)) {
+                    GameObject gameObject = Prefabs.generateFlagPole();
                     // attach this to the mouse cursor
                     levelEditorComponents.getComponent(MouseControls.class).pickUpObject(gameObject);
                 }

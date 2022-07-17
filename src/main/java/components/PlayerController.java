@@ -11,6 +11,7 @@ import physics2d.Physics2D;
 import physics2d.components.PillboxCollider;
 import physics2d.components.RigidBody2D;
 import physics2d.enums.BodyType;
+import scenes.LevelEditorSceneInitializer;
 import scenes.LevelSceneInitializer;
 import util.AssetPool;
 
@@ -60,6 +61,10 @@ public class PlayerController extends Component {
 
     private transient SpriteRenderer spriteRenderer;
 
+    private transient boolean playWinAnimation = false;
+    private transient float timeToCastle = 4.5f;
+    private transient float walkTime = 2.2f;
+
     @Override
     public void start() {
         rigidBody2D = gameObject.getComponent(RigidBody2D.class);
@@ -70,6 +75,33 @@ public class PlayerController extends Component {
 
     @Override
     public void update(float dt) {
+        if (playWinAnimation) {
+            checkOnGround();
+            if (!onGround) {
+                gameObject.transform.scale.x = -0.25f;
+                gameObject.transform.position.y -= dt;
+                stateMachine.trigger("stopRunning");
+                stateMachine.trigger("stopJumping");
+            } else {
+                if (walkTime > 0) {
+                    gameObject.transform.scale.x = 0.25f;
+                    gameObject.transform.position.x += dt;
+                    stateMachine.trigger("startRunning");
+                }
+                if (!AssetPool.getSound("assets/sounds/stage_clear.ogg").isPlaying()) {
+                    AssetPool.getSound("assets/sounds/stage_clear.ogg").play();
+                }
+                timeToCastle -= dt;
+                walkTime -= dt;
+
+                if (timeToCastle <= 0) {
+                    Window.changeScene(new LevelEditorSceneInitializer());
+                }
+            }
+
+            return;
+        }
+
         if (isDead) {
             if (gameObject.transform.position.y < deadMaxHeight && deadGoingUp) {
                 gameObject.transform.position.y += dt * walkSpeed / 2.0f;
@@ -243,7 +275,7 @@ public class PlayerController extends Component {
     }
 
     public boolean isHurtInvincible() {
-        return hurtInvincibililityTimeLeft > 0;
+        return hurtInvincibililityTimeLeft > 0 || playWinAnimation;
     }
 
     public boolean isInvincible() {
@@ -293,5 +325,18 @@ public class PlayerController extends Component {
 
     public boolean hasWon() {
         return false;
+    }
+
+    public void playWinAnimation(GameObject flagPole) {
+        if (!playWinAnimation) {
+            playWinAnimation = true;
+            velocity.set(0f, 0f);
+            acceleration.set(0f, 0f);
+            rigidBody2D.setVelocity(velocity);
+            rigidBody2D.setIsSensor();
+            rigidBody2D.setBodyType(BodyType.Static);
+            gameObject.transform.position.x = flagPole.transform.position.x;
+            AssetPool.getSound("assets/sounds/flagpole.ogg").play();
+        }
     }
 }
