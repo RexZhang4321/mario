@@ -43,4 +43,8 @@ public class GameCamera extends Component {
             }
         }
     }
+
+    public float getGameCameraY() {
+        return gameCamera.position.y;
+    }
 }

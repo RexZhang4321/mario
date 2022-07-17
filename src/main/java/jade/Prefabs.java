@@ -360,4 +360,40 @@ public class Prefabs {
         pipe.addComponent(new Pipe(Direction.values()[spriteIndex]));
         return pipe;
     }
+
+    public static GameObject generateTurtle() {
+        SpriteSheet turtleSpriteSheet = AssetPool.getSpriteSheet(turtleSpriteSheetPath);
+        GameObject turtle = generateSpriteObject(turtleSpriteSheet.getSprite(0), 0.25f, 0.35f);
+
+        AnimationState walk = new AnimationState();
+        walk.title = "Walk";
+        float defaultFrameTime = 0.23f;
+        walk.addFrame(turtleSpriteSheet.getSprite(0), defaultFrameTime);
+        walk.addFrame(turtleSpriteSheet.getSprite(1), defaultFrameTime);
+        walk.setLoop(true);
+
+        AnimationState turtleShell = new AnimationState();
+        turtleShell.title = "TurtleShellSpin";
+        turtleShell.addFrame(turtleSpriteSheet.getSprite(2), 0.1f);
+        turtleShell.setLoop(false);
+
+        StateMachine stateMachine = new StateMachine();
+        stateMachine.addState(walk);
+        stateMachine.addState(turtleShell);
+        stateMachine.setDefaultStateTitle(walk.title);
+        stateMachine.addStateTrigger(walk.title, turtleShell.title, "squashMe");
+        turtle.addComponent(stateMachine);
+
+        RigidBody2D rigidBody2D = new RigidBody2D();
+        rigidBody2D.setBodyType(BodyType.Dynamic);
+        rigidBody2D.setMass(0.1f);
+        rigidBody2D.setFixedRotation(true);
+        turtle.addComponent(rigidBody2D);
+        CircleCollider circleCollider = new CircleCollider();
+        circleCollider.setRadius(0.13f);
+        circleCollider.setOffset(new Vector2f(0, -0.05f));
+        turtle.addComponent(circleCollider);
+        turtle.addComponent(new TurtleAI());
+        return turtle;
+    }
 }
