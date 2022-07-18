@@ -44,22 +44,8 @@ public class Pipe extends Component {
     public void beginCollision(GameObject collidingObject, Contact contact, Vector2f hitNormal) {
         PlayerController playerController = collidingObject.getComponent(PlayerController.class);
         if (playerController != null) {
-            if (direction == Direction.Up && hitNormal.y < entranceVectorTolerance) {
-                return;
-            }
-            if (direction == Direction.Down && hitNormal.y > -entranceVectorTolerance) {
-                return;
-            }
-            if (direction == Direction.Left && hitNormal.x > -entranceVectorTolerance) {
-                System.out.println("not hit from right: " + hitNormal.x);
-                return;
-            }
-            if (direction == Direction.Right && hitNormal.x < entranceVectorTolerance) {
-                System.out.println("not hit from left: " + hitNormal.x);
-                return;
-            }
+            collidingPlayer = playerController;
         }
-        collidingPlayer = playerController;
     }
 
     @Override
@@ -71,16 +57,44 @@ public class Pipe extends Component {
     }
 
     private boolean shouldTeleport(Direction direction) {
-        if (direction == Direction.Up && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_DOWN) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_S)) && isEntrance) {
+        if (direction == Direction.Up && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_DOWN) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_S)) && isEntrance && playerAtEntrance()) {
             return true;
         }
-        if (direction == Direction.Down && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_UP) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_W)) && isEntrance) {
+        if (direction == Direction.Down && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_UP) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_W)) && isEntrance && playerAtEntrance()) {
             return true;
         }
-        if (direction == Direction.Left && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_D)) && isEntrance) {
+        if (direction == Direction.Left && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_D)) && isEntrance && playerAtEntrance()) {
             return true;
         }
-        return direction == Direction.Right && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_LEFT) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_A)) && isEntrance;
+        return direction == Direction.Right && (KeyListener.isKeyPressed(GLFW.GLFW_KEY_LEFT) || KeyListener.isKeyPressed(GLFW.GLFW_KEY_A)) && isEntrance && playerAtEntrance();
+    }
+
+    public boolean playerAtEntrance() {
+        if (collidingPlayer == null) {
+            return false;
+        }
+
+        Vector2f min = new Vector2f(gameObject.transform.position)
+                .sub(new Vector2f(gameObject.transform.scale).mul(0.5f));
+        Vector2f max = new Vector2f(gameObject.transform.position)
+                .add(new Vector2f(gameObject.transform.scale).mul(0.5f));
+
+        Vector2f playerMin = new Vector2f(collidingPlayer.gameObject.transform.position)
+                .sub(new Vector2f(collidingPlayer.gameObject.transform.scale).mul(0.5f));
+        Vector2f playerMax = new Vector2f(collidingPlayer.gameObject.transform.position)
+                .add(new Vector2f(collidingPlayer.gameObject.transform.scale).mul(0.5f));
+
+        System.out.println(String.format("min: %f, max: %f, player min: %f, player max: %f", min.x, max.x, playerMin.x, playerMax.x));
+        System.out.println(playerMax.x <= min.x);
+        System.out.println(playerMax.y > min.y);
+        System.out.println(playerMin.y < max.y);
+
+        return switch (direction) {
+            case Up -> playerMin.y >= max.y && playerMax.x > min.x && playerMin.x < max.x;
+            case Down -> playerMax.y <= min.y && playerMax.x > min.x && playerMin.x < max.x;
+            case Left -> playerMin.x <= min.x && playerMax.y > min.y && playerMin.y < max.y;
+            case Right -> playerMin.x >= max.x && playerMax.y > min.y && playerMin.y < max.y;
+        };
     }
 
     private Vector2f getPlayerPosition(GameObject pipe) {
