@@ -85,6 +85,11 @@ public class GoombaAI extends Component {
         } else if (Math.abs(hitNormal.y) < 0.1f) {
             goingRight = hitNormal.x < 0;
         }
+
+        if (collidingObject.getComponent(Fireball.class) != null) {
+            stomp();
+            collidingObject.getComponent(Fireball.class).disappear();
+        }
     }
 
     public void stomp() {

@@ -2,6 +2,7 @@ package components;
 
 import jade.GameObject;
 import jade.KeyListener;
+import jade.Prefabs;
 import jade.Window;
 import org.jbox2d.dynamics.contacts.Contact;
 import org.joml.Vector2f;
@@ -171,6 +172,15 @@ public class PlayerController extends Component {
             } else {
                 stateMachine.trigger("startRunning");
             }
+        }
+
+        if (KeyListener.keyBeginPress(GLFW.GLFW_KEY_E) && playerState == PlayerState.Fire && Fireball.canSpawn()) {
+            Vector2f position = new Vector2f(gameObject.transform.position)
+                    .add(gameObject.transform.scale.x > 0 ? new Vector2f(0.26f, 0f) : new Vector2f(-0.26f, 0f));
+            GameObject fireball = Prefabs.generateFireball(position);
+            fireball.getComponent(Fireball.class).goingRight = gameObject.transform.scale.x > 0;
+
+            Window.getScene().addGameObjectToScene(fireball);
         }
 
         checkOnGround();
