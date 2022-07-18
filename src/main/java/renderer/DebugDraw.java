@@ -101,7 +101,7 @@ public class DebugDraw {
         GL41.glEnableVertexAttribArray(1);
 
         // draw the batch
-        GL41.glDrawArrays(GL41.GL_LINES, 0, lines.size() * 6 * 2);
+        GL41.glDrawArrays(GL41.GL_LINES, 0, lines.size());
 
         // disable location
         GL41.glDisableVertexAttribArray(0);
