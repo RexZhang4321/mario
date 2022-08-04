@@ -108,7 +108,7 @@ public class MouseControls extends Component {
             int screenStartX = ((int) Math.min(boxSelectStart.x, boxSelectEnd.x));
             int screenStartY = ((int) Math.min(boxSelectStart.y, boxSelectEnd.y));
             int screenEndX = ((int) Math.max(boxSelectStart.x, boxSelectEnd.x));
-            int screenEndY = ((int) Math.max(boxSelectEnd.x, boxSelectEnd.y));
+            int screenEndY = ((int) Math.max(boxSelectStart.y, boxSelectEnd.y));
 
             float[] gameObjectIds = pickingTexture.readPixels(
                     new Vector2i(screenStartX, screenStartY),
