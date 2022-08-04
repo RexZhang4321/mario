@@ -239,6 +239,7 @@ public class Window implements Observer {
                 if (runtimePlaying) {
                     currentScene.update(dt);
                 } else {
+                    MouseListener.beginFrame();
                     currentScene.editorUpdate(dt);
                 }
                 currentScene.render();

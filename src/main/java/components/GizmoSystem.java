@@ -9,6 +9,9 @@ public class GizmoSystem extends Component {
     private SpriteSheet gizmos;
     private int usingGizmo = 0;
 
+    private TranslateGizmo translateGizmo;
+    private ScaleGizmo scaleGizmo;
+
     public GizmoSystem(SpriteSheet gizmos) {
         this.gizmos = gizmos;
     }
@@ -17,10 +20,12 @@ public class GizmoSystem extends Component {
     public void start() {
         super.start();
 
-        gameObject.addComponent(new TranslateGizmo(gizmos.getSprite(1),
-                Window.getInstance().getImGuiLayer().getPropertiesWindow()));
-        gameObject.addComponent(new ScaleGizmo(gizmos.getSprite(2),
-                Window.getInstance().getImGuiLayer().getPropertiesWindow()));
+        translateGizmo = new TranslateGizmo(gizmos.getSprite(1),
+                Window.getInstance().getImGuiLayer().getPropertiesWindow());
+        scaleGizmo = new ScaleGizmo(gizmos.getSprite(2),
+                Window.getInstance().getImGuiLayer().getPropertiesWindow());
+        gameObject.addComponent(translateGizmo);
+        gameObject.addComponent(scaleGizmo);
     }
 
     @Override
@@ -40,5 +45,9 @@ public class GizmoSystem extends Component {
         } else if (KeyListener.isKeyPressed(GLFW.GLFW_KEY_R)) {
             usingGizmo = 1;
         }
+    }
+
+    public boolean isGizmoActive() {
+        return translateGizmo.isActive() || scaleGizmo.isActive();
     }
 }

@@ -22,7 +22,7 @@ public class GameCamera extends Component {
 
     @Override
     public void start() {
-        this.player = Window.getScene().getGameObjectWithClass(PlayerController.class);
+        this.player = Window.getScene().getGameObjectWithComponentClass(PlayerController.class);
         this.gameCamera.clearColor.set(skyColor);
         this.undergroundYLevel = gameCamera.position.y - gameCamera.getProjectionSize().y - cameraBuffer;
     }

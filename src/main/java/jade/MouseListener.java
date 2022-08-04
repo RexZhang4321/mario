@@ -12,6 +12,7 @@ public class MouseListener {
     private static MouseListener instance;
     private double scrollX, scrollY;
     private double xPos, yPos, lastX, lastY;
+    private float worldX, worldY, lastWorldX, lastWorldY;
     private boolean[] mouseButtonPressed = new boolean[9];
     private boolean isDragging;
 
@@ -27,6 +28,8 @@ public class MouseListener {
         this.yPos = 0.0;
         this.lastX = 0.0;
         this.lastY = 0.0;
+        this.worldX = 0.0f;
+        this.worldY = 0.0f;
     }
 
     public static MouseListener getInstance() {
@@ -96,6 +99,15 @@ public class MouseListener {
         getInstance().scrollY = yOffset;
     }
 
+    public static void beginFrame() {
+        Vector2f worldCoords = calcWorldCoords();
+        getInstance().lastWorldX = getInstance().worldX;
+        getInstance().lastWorldY = getInstance().worldY;
+        getInstance().worldX = worldCoords.x;
+        getInstance().worldY = worldCoords.y;
+        System.out.printf("last x: %f, cur x:%f%n", getInstance().lastWorldX, getInstance().worldX);
+    }
+
     public static void endFrame() {
         getInstance().scrollX = 0.0;
         getInstance().scrollY = 0.0;
@@ -140,14 +152,26 @@ public class MouseListener {
     }
 
     public static float getWorldX() {
-        return getWorld().x;
+        return getInstance().worldX;
     }
 
     public static float getWorldY() {
-        return getWorld().y;
+        return getInstance().worldY;
+    }
+
+    public static float getWorldDx() {
+        return getInstance().lastWorldX - getInstance().worldX;
+    }
+
+    public static float getWorldDy() {
+        return getInstance().lastWorldY - getInstance().worldY;
     }
 
     public static Vector2f getWorld() {
+        return new Vector2f(getWorldX(), getWorldY());
+    }
+
+    private static Vector2f calcWorldCoords() {
         float currentX = getX() - getInstance().gameViewportPos.x;
         currentX = (currentX / getInstance().gameViewportSize.x) * 2.0f - 1.0f;
 

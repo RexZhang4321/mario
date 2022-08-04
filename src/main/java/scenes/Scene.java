@@ -200,7 +200,7 @@ public class Scene {
         return gameObjects.stream().filter(it -> it.getName().equals(gameObjectName)).findFirst().orElse(null);
     }
 
-    public <T extends Component> GameObject getGameObjectWithClass(Class<T> clazz) {
+    public <T extends Component> GameObject getGameObjectWithComponentClass(Class<T> clazz) {
         for (GameObject gameObject : gameObjects) {
             if (gameObject.getComponent(clazz) != null) {
                 return gameObject;

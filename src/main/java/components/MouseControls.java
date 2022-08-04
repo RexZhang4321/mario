@@ -51,6 +51,13 @@ public class MouseControls extends Component {
         debounce -= dt;
         PickingTexture pickingTexture = Window.getInstance().getImGuiLayer().getPropertiesWindow().getPickingTexture();
         Scene currentScene = Window.getScene();
+        GameObject levelEditor = currentScene.getGameObjectByName("LevelEditor");
+        if (levelEditor != null) {
+            GizmoSystem gizmoSystem = levelEditor.getComponent(GizmoSystem.class);
+            if (gizmoSystem != null && gizmoSystem.isGizmoActive()) {
+                return;
+            }
+        }
 
         if (holdingObject != null) {
             holdingObject.transform.position.x = ((int) Math.floor(MouseListener.getWorldX() / Settings.GRID_WIDTH) * Settings.GRID_WIDTH) + Settings.GRID_WIDTH / 2.0f;

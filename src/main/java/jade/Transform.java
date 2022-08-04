@@ -64,4 +64,10 @@ public class Transform extends Component {
     public int hashCode() {
         return Objects.hash(position, scale, rotation, zIndex);
     }
+
+    public void setPosition(float x, float y) {
+        System.out.printf("Setting position to x: %f, y: %f%n", x, y);
+        position.set(x, y);
+        System.out.printf("After setting position to x: %f, y: %f%n", position.x, position.y);
+    }
 }
